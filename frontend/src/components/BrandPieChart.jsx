@@ -100,7 +100,7 @@ const BrandBarChart = ({
     const width = 1000;
     const left = 62;
     const right = 18;
-    const top = 18;
+    const top = 30;
     const bottom = 42;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
@@ -131,12 +131,15 @@ const BrandBarChart = ({
                         const x = categoryStart + groupGap + seriesIndex * groupedBarWidth;
                         const y = top + plotHeight - barHeight;
                         const fill = entry.color || seriesItem.color;
-                        const labelY = clamp(y - 6, top + 8, top + plotHeight - 6);
+                        const spaceAbove = y - top;
+                        const labelAbove = spaceAbove >= 16;
+                        const labelY = labelAbove ? y - 7 : y + 16;
+                        const labelFill = labelAbove ? 'var(--neutral-2)' : '#ffffff';
 
                         return (
                             <g key={`${entry[categoryKey]}-${seriesItem.key}`}>
                                 <rect x={x} y={y} width={groupedBarWidth} height={barHeight} rx="6" fill={fill} />
-                                <text x={x + groupedBarWidth / 2} y={labelY} textAnchor="middle" fontSize="10" fontWeight="700" fill="var(--neutral-2)">{valueFormatter(value)}</text>
+                                <text x={x + groupedBarWidth / 2} y={labelY} textAnchor="middle" fontSize="11" fontWeight="700" fill={labelFill}>{valueFormatter(value)}</text>
                             </g>
                         );
                     });
@@ -186,7 +189,7 @@ const BrandLineChart = ({
     const width = 1000;
     const left = 58;
     const right = 18;
-    const top = 24;
+    const top = 48;
     const bottom = 36;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
@@ -230,13 +233,16 @@ const BrandLineChart = ({
                 {showArea ? <path d={buildPath(points, true, top + plotHeight)} fill={applyAlpha(color, areaOpacity)} stroke="none" /> : null}
                 <path d={buildPath(points)} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
 
-                {points.map((point, index) => (
-                    <g key={point.label}>
-                        <circle cx={point.x} cy={point.y} r="4" fill={color} />
-                        <text x={point.x} y={clamp(point.y - 8, top + 10, top + plotHeight - 6)} textAnchor="middle" fontSize="10" fontWeight="700" fill="var(--neutral-2)">{valueFormatter(point.value)}</text>
-                        <text x={point.x} y={height - 12} textAnchor="middle" fontSize="10" fill="var(--neutral-4)">{data[index][categoryKey]}</text>
-                    </g>
-                ))}
+                {points.map((point, index) => {
+                    const labelY = point.y - 14;
+                    return (
+                        <g key={point.label}>
+                            <circle cx={point.x} cy={point.y} r="5" fill={color} />
+                            <text x={point.x} y={labelY} textAnchor="middle" fontSize="26" fontWeight="800" fill={color}>{valueFormatter(point.value)}</text>
+                            <text x={point.x} y={height - 12} textAnchor="middle" fontSize="10" fill="var(--neutral-4)">{data[index][categoryKey]}</text>
+                        </g>
+                    );
+                })}
 
                 <line x1={left} x2={width - right} y1={top + plotHeight} y2={top + plotHeight} stroke="var(--neutral-6)" />
             </svg>

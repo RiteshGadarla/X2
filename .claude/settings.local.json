@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python seed.py)"
+      "Bash(python seed.py)",
+      "Bash(xargs grep *)"
     ]
   }
 }

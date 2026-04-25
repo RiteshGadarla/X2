@@ -191,7 +191,9 @@ const HeroDashboard = ({ metrics }) => {
                             <li key={item}>{item}</li>
                         ))}
                     </ul>
-                    <BrandBarChart data={roleHero.distribution} categoryKey="name" valueKey="value" height={150} />
+                    <div style={{ marginTop: 'auto' }}>
+                        <BrandBarChart data={roleHero.distribution} categoryKey="name" valueKey="value" height={150} />
+                    </div>
                 </div>
             </div>
         </section>

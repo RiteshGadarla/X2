@@ -2,17 +2,6 @@ import { useAuth } from '../state/auth-context';
 import { LayoutDashboard, Ticket, BarChart3, ShieldAlert, BookOpen, Settings, LogOut, MessageSquareHeart, TrendingUp, Scale, UserRound } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const SidebarItem = ({ icon: Icon, label, onClick, active }) => (
-    <button
-        type="button"
-        className={`sidenav-link${active ? ' active' : ''}`}
-        onClick={onClick}
-    >
-        <Icon size={16} />
-        <span>{label}</span>
-    </button>
-);
-
 const navSections = [
     {
         label: 'Overview',
@@ -47,53 +36,58 @@ const navSections = [
     },
 ];
 
-const Sidebar = () => {
+const Taskbar = () => {
     const { setRole, canAccess } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const canShowItem = (item) => !item.permissions || item.permissions.some((permission) => canAccess(permission));
+
+    const canShowItem = (item) => !item.permissions || item.permissions.some((p) => canAccess(p));
+    const allItems = navSections.flatMap(s => s.items).filter(canShowItem);
 
     return (
-        <aside className="sidenav">
-            <div className="sidenav-logo">
+        <header className="taskbar">
+            {/* Logo */}
+            <div className="taskbar-logo" onClick={() => navigate('/')}>
                 <div className="sidenav-logo-mark">A</div>
-                <div className="sidenav-logo-copy">
-                    <div className="sidenav-logo-text">aegis.ai</div>
-                    <div className="sidenav-logo-sub">CS Agent</div>
-                </div>
+                <span className="taskbar-brand">aegis.ai</span>
             </div>
 
-            <nav className="sidenav-nav" aria-label="Primary navigation">
-                {navSections.map((section) => {
-                    const visibleItems = section.items.filter(canShowItem);
-                    if (!visibleItems.length) return null;
+            <div className="taskbar-divider" />
 
+            {/* Nav items */}
+            <nav className="taskbar-nav">
+                {allItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = location.pathname === item.route;
                     return (
-                        <div key={section.label}>
-                            <div className="sidenav-section-label">{section.label}</div>
-                            {visibleItems.map((item) => (
-                                <SidebarItem
-                                    key={item.route}
-                                    icon={item.icon}
-                                    label={item.label}
-                                    active={location.pathname === item.route}
-                                    onClick={() => navigate(item.route)}
-                                />
-                            ))}
-                        </div>
+                        <button
+                            key={item.route}
+                            type="button"
+                            className={`taskbar-item${active ? ' active' : ''}`}
+                            onClick={() => navigate(item.route)}
+                            title={item.label}
+                        >
+                            <Icon size={16} />
+                            <span>{item.label}</span>
+                        </button>
                     );
                 })}
             </nav>
 
-            <div className="sidenav-footer">
-                <SidebarItem
-                    icon={LogOut}
-                    label="Switch Role"
+            {/* Right: switch role */}
+            <div className="taskbar-actions">
+                <button
+                    type="button"
+                    className="taskbar-item taskbar-logout"
                     onClick={() => setRole(null)}
-                />
+                    title="Switch Role"
+                >
+                    <LogOut size={15} />
+                    <span>Switch Role</span>
+                </button>
             </div>
-        </aside>
+        </header>
     );
 };
 
-export default Sidebar;
+export default Taskbar;

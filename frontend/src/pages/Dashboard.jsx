@@ -61,11 +61,7 @@ const Dashboard = () => {
     return (
         <div>
             <HeroDashboard metrics={metrics} />
-<<<<<<< HEAD
-            <div style={{ padding: '0 64px 64px' }}>
-=======
             <div className="dashboard-workspace">
->>>>>>> master
                 <h2 className="section-title" style={{ marginTop: '32px' }}>Operational Workspace</h2>
                 <p className="section-desc">Your actions, controls, and workflow priorities are loaded for this role context.</p>
 

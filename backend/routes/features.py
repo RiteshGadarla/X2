@@ -7,10 +7,7 @@ from mock_data import (
     MOCK_CHANNEL_VOL,
     MOCK_LEGAL_OVERVIEW,
     MOCK_CUSTOMER_PORTAL,
-<<<<<<< HEAD
-=======
     MOCK_ACTIVITY_LOGS,
->>>>>>> master
 )
 
 router = APIRouter()
@@ -42,10 +39,7 @@ def get_legal_overview():
 @router.get("/customer-portal")
 def get_customer_portal():
     return MOCK_CUSTOMER_PORTAL
-<<<<<<< HEAD
-=======
 
 @router.get("/logs")
 def get_activity_logs():
     return {"logs": MOCK_ACTIVITY_LOGS}
->>>>>>> master

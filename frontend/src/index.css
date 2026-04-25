@@ -16,8 +16,6 @@
       background: #EEF2F6;
     }
 
-<<<<<<< HEAD
-=======
     .app-shell {
       display: flex;
       width: 100vw;
@@ -91,13 +89,16 @@
       font-weight: 700;
     }
     .activity-log-list {
-      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
       padding: 14px 2px 4px 0;
     }
     .activity-log-item {
       display: grid;
       grid-template-columns: 28px 1fr;
       gap: 10px;
+      min-height: 82px;
       padding: 10px 0;
       border-bottom: 1px solid var(--neutral-8);
     }
@@ -144,6 +145,10 @@
       font-size: 11px;
       line-height: 1.45;
       margin: 0 0 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .activity-log-scope {
       display: inline-flex;
@@ -160,6 +165,19 @@
       right: 322px;
       bottom: 18px;
       z-index: 500;
+    }
+    .sidebar-logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #5929d0 0%, #6b8ef0 55%, #a855f7 100%);
+      box-shadow: 0 8px 18px rgba(89, 41, 208, 0.24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
     }
 
     @media (max-width: 1280px) {
@@ -197,7 +215,6 @@
       }
     }
 
->>>>>>> master
     /* ─────────────────────────────────────────────
        DESIGN TOKENS
     ───────────────────────────────────────────── */
@@ -321,8 +338,6 @@
       font-size: 11.5px; font-weight: 600; color: #fff;
     }
 
-<<<<<<< HEAD
-=======
     .dashboard-hero {
       border-radius: 0;
       display: flex;
@@ -482,7 +497,6 @@
       }
     }
 
->>>>>>> master
     /* ─────────────────────────────────────────────
        CONTENT SECTIONS
     ───────────────────────────────────────────── */
@@ -1153,8 +1167,3 @@
       vertical-align: middle;
     }
 
-<<<<<<< HEAD
-  
-=======
-  
->>>>>>> master

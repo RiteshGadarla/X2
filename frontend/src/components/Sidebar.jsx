@@ -41,7 +41,7 @@ const Sidebar = () => {
         }}>
             {/* Logo area */}
             <div style={{ marginBottom: '40px' }}>
-                <div className="sidenav-logo-mark" style={{ width: '32px', height: '32px', fontSize: '16px' }}>Z</div>
+                <div className="sidebar-logo-mark">A</div>
             </div>
 
             {/* Navigation Links wrapped via RBAC */}

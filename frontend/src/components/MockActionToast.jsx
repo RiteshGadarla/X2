@@ -30,11 +30,7 @@ const MockActionToast = () => {
   const style = toneStyles[toast.tone] || toneStyles.info;
 
   return (
-<<<<<<< HEAD
-    <div style={{ position: 'fixed', right: '22px', bottom: '18px', zIndex: 500 }}>
-=======
     <div className="mock-action-toast">
->>>>>>> master
       <div style={{ ...style, borderRadius: '12px', boxShadow: 'var(--shadow-md)', padding: '10px 14px', minWidth: '260px' }}>
         <div style={{ fontSize: '11px', fontWeight: '700' }}>{toast.title}</div>
         {toast.detail && <div style={{ fontSize: '10px', marginTop: '2px', opacity: 0.9 }}>{toast.detail}</div>}

@@ -2,26 +2,9 @@ import { AreaChart, Area, BarChart, Bar, Cell, ResponsiveContainer, Tooltip, XAx
 import { useAuth } from '../state/AuthContext';
 
 const MetricBox = ({ label, value }) => (
-<<<<<<< HEAD
-    <div style={{
-        background: 'rgba(255,255,255,0.15)',
-        border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: 'var(--radius-md)',
-        padding: '16px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backdropFilter: 'blur(10px)',
-        minWidth: '140px'
-    }}>
-        <div style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'var(--heading)' }}>{value}</div>
-        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8, marginTop: '4px' }}>{label}</div>
-=======
     <div className="hero-metric-box">
         <div className="hero-metric-value">{value}</div>
         <div className="hero-metric-label">{label}</div>
->>>>>>> master
     </div>
 );
 
@@ -162,15 +145,6 @@ const HeroDashboard = ({ metrics }) => {
     const roleHero = ROLE_HERO_CONTENT[role] || ROLE_HERO_CONTENT.SUPPORT_AGENT;
 
     return (
-<<<<<<< HEAD
-        <section className="page-hero" style={{ padding: '64px', borderRadius: '0', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div>
-                <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '999px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
-                    Active Context: {roleName}
-                </div>
-                <h1 style={{ margin: '0 0 12px', color: '#fff' }}>{roleHero.title}</h1>
-                <p style={{ maxWidth: '760px', fontSize: '15px' }}>{description || roleHero.subtitle}</p>
-=======
         <section className="page-hero dashboard-hero">
             <div>
                 <div className="dashboard-hero-context">
@@ -178,7 +152,6 @@ const HeroDashboard = ({ metrics }) => {
                 </div>
                 <h1 style={{ margin: '0 0 12px', color: '#fff' }}>{roleHero.title}</h1>
                 <p style={{ maxWidth: '760px' }}>{description || roleHero.subtitle}</p>
->>>>>>> master
                 <div className="badge-row">
                     {roleHero.pillars.map((item) => (
                         <span key={item} className="badge-chip">{item}</span>
@@ -186,32 +159,19 @@ const HeroDashboard = ({ metrics }) => {
                 </div>
             </div>
 
-<<<<<<< HEAD
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '16px' }}>
-=======
             <div className="dashboard-hero-metrics">
->>>>>>> master
                 {metricKeys.map((key) => {
                     const formattedLabel = key.split('_').join(' ');
                     return <MetricBox key={key} label={formattedLabel} value={metricData[key]} />;
                 })}
             </div>
 
-<<<<<<< HEAD
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '18px' }}>
-                <div className="card-demo" style={{ background: 'rgba(255,255,255,0.93)', border: '1px solid rgba(255,255,255,0.5)' }}>
-                    <div className="card-demo-header">
-                        <h3 className="type-h4">{roleHero.chartTitle}</h3>
-                    </div>
-                    <div style={{ height: '170px', width: '100%' }}>
-=======
             <div className="dashboard-hero-grid">
                 <div className="card-demo dashboard-hero-card">
                     <div className="card-demo-header">
                         <h3 className="type-h4">{roleHero.chartTitle}</h3>
                     </div>
                     <div className="dashboard-hero-trend">
->>>>>>> master
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={roleHero.trendData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
                                 <defs>
@@ -229,18 +189,6 @@ const HeroDashboard = ({ metrics }) => {
                     </div>
                 </div>
 
-<<<<<<< HEAD
-                <div className="card-demo" style={{ background: 'rgba(255,255,255,0.93)', border: '1px solid rgba(255,255,255,0.5)' }}>
-                    <div className="card-demo-header">
-                        <h3 className="type-h4">Access Scope</h3>
-                    </div>
-                    <ul style={{ listStyle: 'none', marginBottom: '14px' }}>
-                        {roleHero.access.map((item) => (
-                            <li key={item} style={{ fontSize: '11px', color: 'var(--neutral-2)', marginBottom: '6px' }}>- {item}</li>
-                        ))}
-                    </ul>
-                    <div style={{ height: '90px' }}>
-=======
                 <div className="card-demo dashboard-hero-card">
                     <div className="card-demo-header">
                         <h3 className="type-h4">Access Scope</h3>
@@ -251,7 +199,6 @@ const HeroDashboard = ({ metrics }) => {
                         ))}
                     </ul>
                     <div className="dashboard-hero-bars">
->>>>>>> master
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={roleHero.distribution} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                                 <XAxis dataKey="name" hide />

@@ -157,8 +157,6 @@ MOCK_CUSTOMER_PORTAL = {
         {"title": "Webhook retry diagnostics checklist", "tag": "Integrations"}
     ]
 }
-<<<<<<< HEAD
-=======
 
 MOCK_ACTIVITY_LOGS = [
     {
@@ -218,4 +216,3 @@ MOCK_ACTIVITY_LOGS = [
         "role_scope": "Support"
     }
 ]
->>>>>>> master

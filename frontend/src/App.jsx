@@ -33,28 +33,6 @@ const AppContent = () => {
           
           {/* Support & Manager Tiers */}
           <Route path="/tickets" element={
-<<<<<<< HEAD
-            <ProtectedComponent permission="VIEW_TICKETS" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><LiveTicketQueue /></div></ProtectedComponent>
-          } />
-          
-          <Route path="/sla" element={
-            <ProtectedComponent permission="VIEW_SLA" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><SLACompliance /></div></ProtectedComponent>
-          } />
-
-          <Route path="/sentiment" element={
-            <ProtectedComponent permission="VIEW_SENTIMENT" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><SentimentFeed /></div></ProtectedComponent>
-          } />
-
-          <Route path="/hil" element={
-            <ProtectedComponent permissions={["VIEW_HIL_STATUS", "APPROVE_HIL", "APPROVE_HIL_OVERRIDE", "MANAGE_LEGAL_CORRESPONDENCE"]} fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><HILReviewQueue /></div></ProtectedComponent>
-          } />
-          <Route path="/legal" element={
-            <ProtectedComponent permission="VIEW_LEGAL_TICKETS" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><LegalComplianceDashboard /></div></ProtectedComponent>
-          } />
-
-          <Route path="/kb" element={
-            <ProtectedComponent permissions={["DRAFT_KB", "PUBLISH_KB", "VIEW_KB"]} fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><KBPanel /></div></ProtectedComponent>
-=======
             <ProtectedComponent permission="VIEW_TICKETS" fallback={<Navigate to="/" replace />}><div className="route-page"><LiveTicketQueue /></div></ProtectedComponent>
           } />
           
@@ -75,39 +53,23 @@ const AppContent = () => {
 
           <Route path="/kb" element={
             <ProtectedComponent permissions={["DRAFT_KB", "PUBLISH_KB", "VIEW_KB"]} fallback={<Navigate to="/" replace />}><div className="route-page"><KBPanel /></div></ProtectedComponent>
->>>>>>> master
           } />
 
           {/* VP / Exec */}
           <Route path="/exec" element={
-<<<<<<< HEAD
-            <ProtectedComponent permission="VIEW_EXEC_DASH" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><ExecutiveDashboard /></div></ProtectedComponent>
-          } />
-          
-          <Route path="/voc" element={
-            <ProtectedComponent permission="VIEW_VOC" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><VocPanel /></div></ProtectedComponent>
-=======
             <ProtectedComponent permission="VIEW_EXEC_DASH" fallback={<Navigate to="/" replace />}><div className="route-page"><ExecutiveDashboard /></div></ProtectedComponent>
           } />
           
           <Route path="/voc" element={
             <ProtectedComponent permission="VIEW_VOC" fallback={<Navigate to="/" replace />}><div className="route-page"><VocPanel /></div></ProtectedComponent>
->>>>>>> master
           } />
 
           {/* Admin Ops */}
           <Route path="/integrations" element={
-<<<<<<< HEAD
-            <ProtectedComponent permission="MANAGE_INTEGRATIONS" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><IntegrationPanel /></div></ProtectedComponent>
-          } />
-          <Route path="/portal" element={
-            <ProtectedComponent permission="VIEW_CUSTOMER_PORTAL" fallback={<Navigate to="/" replace />}><div style={{padding: '32px 64px'}}><CustomerPortal /></div></ProtectedComponent>
-=======
             <ProtectedComponent permission="MANAGE_INTEGRATIONS" fallback={<Navigate to="/" replace />}><div className="route-page"><IntegrationPanel /></div></ProtectedComponent>
           } />
           <Route path="/portal" element={
             <ProtectedComponent permission="VIEW_CUSTOMER_PORTAL" fallback={<Navigate to="/" replace />}><div className="route-page"><CustomerPortal /></div></ProtectedComponent>
->>>>>>> master
           } />
 
           <Route path="*" element={<Navigate to="/" />} />

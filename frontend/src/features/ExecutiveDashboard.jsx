@@ -1,0 +1,75 @@
+import { useState } from 'react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { emitMockAction } from '../utils/mockActionBus';
+
+const ExecutiveDashboard = () => {
+    const [stats] = useState({
+        "total_revenue_protected": "$1.2M",
+        "open_p1": 4,
+        "global_csat": "4.6/5"
+    });
+
+    const revenueTrend = [
+        { month: 'Jan', revenue: 900000 },
+        { month: 'Feb', revenue: 950000 },
+        { month: 'Mar', revenue: 1050000 },
+        { month: 'Apr', revenue: 1100000 },
+        { month: 'May', revenue: 1200000 }
+    ];
+
+    const formatCurrency = (val) => `$${(val / 1000000).toFixed(1)}M`;
+
+    return (
+        <div className="card-demo" style={{ marginTop: '20px', borderLeft: '4px solid var(--primary)' }}>
+            <div className="card-demo-header">
+                <h3 className="type-h4">Executive Support Summary</h3>
+            </div>
+            <p className="type-body" style={{ color: 'var(--neutral-4)' }}>High-level rollup of operational health and financial mitigation.</p>
+            
+            <div className="layout-card-grid" style={{ marginTop: '16px' }}>
+                <div className="layout-card">
+                    <div className="layout-card-title">At-Risk Revenue Protected</div>
+                    <div className="type-h2" style={{ color: 'var(--success)' }}>{stats.total_revenue_protected}</div>
+                </div>
+                <div className="layout-card">
+                    <div className="layout-card-title">Active P1 Major Outages</div>
+                    <div className="type-h2" style={{ color: 'var(--error)' }}>{stats.open_p1}</div>
+                </div>
+                <div className="layout-card">
+                    <div className="layout-card-title">Global Aggregate CSAT</div>
+                    <div className="type-h2">{stats.global_csat}</div>
+                </div>
+            </div>
+
+            <h4 style={{ marginTop: '32px', fontSize: '12px', color: 'var(--neutral-2)', marginBottom: '12px' }}>Protected Revenue Trend (YTD)</h4>
+            <div style={{ height: '200px', width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={revenueTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                        <defs>
+                            <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="var(--success)" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="var(--success)" stopOpacity={0}/>
+                            </linearGradient>
+                        </defs>
+                        <XAxis dataKey="month" tick={{fontSize: 10, fill: 'var(--neutral-4)'}} axisLine={false} tickLine={false} />
+                        <YAxis tickFormatter={formatCurrency} tick={{fontSize: 10, fill: 'var(--neutral-4)'}} axisLine={false} tickLine={false} />
+                        <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{borderRadius: '8px', border: '1px solid var(--neutral-7)', fontSize: '11px'}} />
+                        <Area type="monotone" dataKey="revenue" stroke="var(--success)" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div style={{ marginTop: '24px' }}>
+                <button
+                    id="exec_export_rollup_btn"
+                    className="btn btn-sm btn-primary"
+                    onClick={() => emitMockAction('Executive rollup downloaded', 'Mock R-01 digest generated with SLA and CSAT summary.', 'success')}
+                >
+                    Download Daily R-01 Rollup
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default ExecutiveDashboard;

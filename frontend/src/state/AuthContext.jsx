@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 const FALLBACK_ROLES = [
-    { id: 'SUPPORT_AGENT', name: 'Support Agent' },
+    { id: 'SUPPORT_LEAD', name: 'Support Lead' },
     { id: 'SUPPORT_MANAGER', name: 'Support Manager / CSM' },
     { id: 'VP_CUSTOMER_SUCCESS', name: 'VP Customer Success' },
     { id: 'LEGAL_COMPLIANCE', name: 'Legal / Compliance' },
@@ -11,7 +11,7 @@ const FALLBACK_ROLES = [
 ];
 
 const FALLBACK_PERMISSIONS = {
-    SUPPORT_AGENT: ['VIEW_TICKETS', 'VIEW_SLA', 'VIEW_HIL_STATUS', 'DRAFT_KB'],
+    SUPPORT_LEAD: ['VIEW_TICKETS', 'VIEW_SLA', 'VIEW_HIL_STATUS', 'DRAFT_KB'],
     SUPPORT_MANAGER: ['VIEW_TICKETS', 'VIEW_SLA', 'VIEW_HIL_STATUS', 'DRAFT_KB', 'PUBLISH_KB', 'APPROVE_HIL', 'VIEW_SENTIMENT', 'VIEW_VOC'],
     VP_CUSTOMER_SUCCESS: ['APPROVE_HIL_OVERRIDE', 'VIEW_EXEC_DASH', 'VIEW_VOC', 'VIEW_HIL_STATUS', 'VIEW_SLA'],
     LEGAL_COMPLIANCE: ['VIEW_LEGAL_TICKETS', 'MANAGE_LEGAL_CORRESPONDENCE', 'VIEW_HIL_STATUS', 'VIEW_KB'],

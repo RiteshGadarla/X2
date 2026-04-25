@@ -22,7 +22,7 @@ const ACTION_CATALOG = {
 };
 
 const ROLE_PRIORITIES = {
-    SUPPORT_AGENT: ['Triage quickly', 'Maintain SLA windows', 'Draft quality KB artifacts'],
+    SUPPORT_LEAD: ['Triage quickly', 'Maintain SLA windows', 'Draft quality KB artifacts'],
     SUPPORT_MANAGER: ['Control escalations', 'Improve CSAT and VoC', 'Publish validated KB updates'],
     VP_CUSTOMER_SUCCESS: ['Govern strategic risk', 'Approve SLA exceptions', 'Align VoC with product priorities'],
     LEGAL_COMPLIANCE: ['Mitigate legal exposure', 'Approve regulated responses', 'Maintain audit-ready correspondence'],

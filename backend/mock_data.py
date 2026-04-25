@@ -1,5 +1,5 @@
 ROLES = [
-    {"id": "SUPPORT_AGENT", "name": "Support Agent"},
+    {"id": "SUPPORT_LEAD", "name": "Support Lead"},
     {"id": "SUPPORT_MANAGER", "name": "Support Manager"},
     {"id": "VP_CUSTOMER_SUCCESS", "name": "VP Customer Success"},
     {"id": "LEGAL_COMPLIANCE", "name": "Legal / Compliance"},
@@ -8,7 +8,7 @@ ROLES = [
 ]
 
 ROLE_PERMISSIONS = {
-    "SUPPORT_AGENT": ["VIEW_TICKETS", "VIEW_SLA", "VIEW_HIL_STATUS", "DRAFT_KB"],
+    "SUPPORT_LEAD": ["VIEW_TICKETS", "VIEW_SLA", "VIEW_HIL_STATUS", "DRAFT_KB"],
     "SUPPORT_MANAGER": ["VIEW_TICKETS", "VIEW_SLA", "VIEW_HIL_STATUS", "DRAFT_KB", "MANAGE_AGENT_CONFIG", "APPROVE_HIL", "PUBLISH_KB", "VIEW_SENTIMENT", "VIEW_VOC"],
     "VP_CUSTOMER_SUCCESS": ["APPROVE_HIL_OVERRIDE", "VIEW_EXEC_DASH", "VIEW_VOC", "VIEW_HIL_STATUS", "VIEW_SLA"],
     "LEGAL_COMPLIANCE": ["VIEW_LEGAL_TICKETS", "MANAGE_LEGAL_CORRESPONDENCE", "VIEW_HIL_STATUS", "VIEW_KB"],
@@ -17,7 +17,7 @@ ROLE_PERMISSIONS = {
 }
 
 MOCK_METRICS = {
-    "SUPPORT_AGENT": {
+    "SUPPORT_LEAD": {
         "tickets_resolved_today": 42,
         "sla_compliance_rate": "94%",
         "pending_hil_reviews": 3,

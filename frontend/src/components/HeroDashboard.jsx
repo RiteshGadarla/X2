@@ -9,7 +9,7 @@ const MetricBox = ({ label, value }) => (
 );
 
 const ROLE_HERO_CONTENT = {
-    SUPPORT_AGENT: {
+    SUPPORT_LEAD: {
         title: 'Support Operations Command Center',
         subtitle: 'Prioritize first-contact resolution, keep SLA clocks healthy, and provide proactive customer updates in every ticket stage.',
         pillars: ['UI-01 Live Intake', 'UI-02 SLA Focus', 'UI-07 KB Drafting'],
@@ -142,7 +142,7 @@ const HeroDashboard = ({ metrics }) => {
     // Filter out description for metrics presentation
     const { description, ...metricData } = metrics;
     const metricKeys = Object.keys(metricData);
-    const roleHero = ROLE_HERO_CONTENT[role] || ROLE_HERO_CONTENT.SUPPORT_AGENT;
+    const roleHero = ROLE_HERO_CONTENT[role] || ROLE_HERO_CONTENT.SUPPORT_LEAD;
 
     return (
         <section className="page-hero dashboard-hero">

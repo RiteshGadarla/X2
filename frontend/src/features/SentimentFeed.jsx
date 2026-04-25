@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_COLORS, CHART_THEME } from '../config/brand';
+import { BRAND_COLORS } from '../config/brand';
+import { BrandBarChart } from '../components/BrandPieChart';
 
 const SentimentFeed = () => {
     const [tickets, setTickets] = useState([]);
@@ -37,16 +37,8 @@ const SentimentFeed = () => {
             </div>
             <p className="type-body" style={{ color: 'var(--neutral-4)' }}>Real-time feed with angry and escalation-risk tickets pinned.</p>
 
-            <div style={{ marginTop: '16px', height: '150px', border: '1px solid var(--neutral-7)', borderRadius: 'var(--radius-sm)', padding: '8px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={sentimentData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                        <XAxis dataKey="name" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                        <YAxis tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                        <Bar dataKey="count" fill={BRAND_COLORS.pink} radius={[6, 6, 0, 0]}>
-                            <LabelList dataKey="count" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
-                        </Bar>
-                    </BarChart>
-                </ResponsiveContainer>
+            <div style={{ marginTop: '16px', border: '1px solid var(--neutral-7)', borderRadius: 'var(--radius-sm)', padding: '8px' }}>
+                <BrandBarChart data={sentimentData} categoryKey="name" valueKey="count" color={BRAND_COLORS.pink} height={150} />
             </div>
             
             <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME } from '../config/brand';
+import BrandPieChart from '../components/BrandPieChart';
+import { BRAND_PALETTES } from '../config/brand';
 
 const HILReviewQueue = () => {
     const [queue, setQueue] = useState([]);
@@ -31,23 +31,7 @@ const HILReviewQueue = () => {
                 <div className="layout-card">
                     <div className="layout-card-title">Escalation Mix</div>
                     <div style={{ height: '120px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={checkpointSummary}
-                                    innerRadius={24}
-                                    outerRadius={45}
-                                    dataKey="value"
-                                    stroke={BRAND_COLORS.neutral9}
-                                    strokeWidth={2}
-                                    label={({ name, value }) => `${name}: ${value}`}
-                                >
-                                    {checkpointSummary.map((entry) => (
-                                        <Cell key={entry.name} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <BrandPieChart data={checkpointSummary} height={120} innerRadius={24} outerRadius={45} legend={false} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
                         {checkpointSummary.map((entry) => (

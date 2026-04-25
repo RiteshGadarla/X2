@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      BACKEND_HOST: "0.0.0.0"
+      BACKEND_PORT: "8000"
+      BACKEND_RELOAD: "false"
+      DATABASE_URL: ${DATABASE_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      API_SECRET_KEY: ${API_SECRET_KEY}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        VITE_APP_ENV: production
+        VITE_ENABLE_MOCK_ACTIONS: "false"
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

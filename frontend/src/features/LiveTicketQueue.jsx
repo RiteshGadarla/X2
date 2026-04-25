@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME } from '../config/brand';
+import BrandPieChart from '../components/BrandPieChart';
+import { BRAND_PALETTES } from '../config/brand';
 
 const slaPriorityRank = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 const ticketPriorityRank = { P1: 0, P2: 1, P3: 2, P4: 3 };
@@ -120,17 +120,7 @@ const LiveTicketQueue = () => {
                         <div style={{ marginTop: '3px', fontSize: '10px', color: 'var(--neutral-4)' }}>Current open queue</div>
                     </div>
 
-                    <div style={{ minHeight: '92px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                                <Pie data={priorityData} innerRadius={30} outerRadius={46} dataKey="value" stroke={BRAND_COLORS.neutral9} strokeWidth={2} label={({ name, value }) => `${name}: ${value}`}>
-                                    {priorityData.map((entry) => (
-                                        <Cell key={entry.name} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
+                    <BrandPieChart data={priorityData} height={118} innerRadius={28} outerRadius={46} legend={false} />
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', fontSize: '10px', fontWeight: 700 }}>
                         {priorityCounts.map((entry) => (

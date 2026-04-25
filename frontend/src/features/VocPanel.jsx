@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_COLORS, CHART_THEME } from '../config/brand';
+import { BRAND_COLORS } from '../config/brand';
+import { BrandLineChart } from '../components/BrandPieChart';
 
 const VocPanel = () => {
     const [voc, setVoc] = useState(null);
@@ -47,17 +47,7 @@ const VocPanel = () => {
                 {/* Line Chart */}
                 <div>
                     <h4 style={{ fontSize: '12px', color: 'var(--neutral-2)', marginBottom: '12px' }}>CSAT 5-Week Trend</h4>
-                    <div style={{ height: '160px', width: '100%' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={trendData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                                <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                                <YAxis domain={[3, 5]} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                                <Line type="monotone" dataKey="csat" stroke={BRAND_COLORS.pink} strokeWidth={3} dot={{r: 4, fill: BRAND_COLORS.pink}}>
-                                    <LabelList dataKey="csat" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
-                                </Line>
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
+                    <BrandLineChart data={trendData} categoryKey="week" valueKey="csat" color={BRAND_COLORS.pink} height={160} />
                 </div>
 
                 {/* Feature Requests Map */}

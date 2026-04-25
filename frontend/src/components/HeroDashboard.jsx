@@ -1,6 +1,6 @@
-import { AreaChart, Area, BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, LabelList } from 'recharts';
 import { useAuth } from '../state/auth-context';
-import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME, ROLE_PILLARS } from '../config/brand';
+import { BRAND_COLORS, BRAND_PALETTES, ROLE_PILLARS } from '../config/brand';
+import { BrandAreaChart, BrandBarChart } from '../components/BrandPieChart';
 
 const MetricBox = ({ label, value }) => (
     <div className="hero-metric-box">
@@ -173,21 +173,12 @@ const HeroDashboard = ({ metrics }) => {
                         <h3 className="type-h4">{roleHero.chartTitle}</h3>
                     </div>
                     <div className="dashboard-hero-trend">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={roleHero.trendData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="heroTrend" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={BRAND_COLORS.primary} stopOpacity={0.35} />
-                                        <stop offset="95%" stopColor={BRAND_COLORS.primary} stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <XAxis dataKey="label" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                                <YAxis tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                                <Area type="monotone" dataKey="value" stroke={BRAND_COLORS.primary} fill="url(#heroTrend)" strokeWidth={2.5}>
-                                    <LabelList dataKey="value" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
-                                </Area>
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        <BrandAreaChart
+                            data={roleHero.trendData}
+                            categoryKey="label"
+                            valueKey="value"
+                            color={BRAND_COLORS.primary}
+                        />
                     </div>
                 </div>
 
@@ -200,31 +191,7 @@ const HeroDashboard = ({ metrics }) => {
                             <li key={item}>{item}</li>
                         ))}
                     </ul>
-                    <div className="dashboard-hero-bars">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={roleHero.distribution} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
-                                <XAxis dataKey="name" hide />
-                                <YAxis hide />
-                                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                                    <LabelList dataKey="value" position="top" formatter={(value) => `${value}%`} style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
-                                    {roleHero.distribution.map((item) => (
-                                        <Cell key={item.name} fill={item.color} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '8px' }}>
-                        {roleHero.distribution.map((item) => (
-                            <div key={`${item.name}-value`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <span style={{ width: '8px', height: '8px', borderRadius: '999px', background: item.color }} />
-                                    <span style={{ fontSize: '10px', color: 'var(--neutral-3)' }}>{item.name}</span>
-                                </div>
-                                <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--neutral-1)' }}>{item.value}%</span>
-                            </div>
-                        ))}
-                    </div>
+                    <BrandBarChart data={roleHero.distribution} categoryKey="name" valueKey="value" height={150} />
                 </div>
             </div>
         </section>

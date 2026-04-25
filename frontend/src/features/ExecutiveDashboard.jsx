@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_COLORS, CHART_THEME } from '../config/brand';
+import { BRAND_COLORS } from '../config/brand';
+import { BrandAreaChart } from '../components/BrandPieChart';
 
 const ExecutiveDashboard = () => {
     const [stats] = useState({
@@ -43,23 +43,7 @@ const ExecutiveDashboard = () => {
             </div>
 
             <h4 style={{ marginTop: '32px', fontSize: '12px', color: 'var(--neutral-2)', marginBottom: '12px' }}>Protected Revenue Trend (YTD)</h4>
-            <div style={{ height: '200px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={revenueTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                        <defs>
-                            <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={BRAND_COLORS.success} stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor={BRAND_COLORS.success} stopOpacity={0}/>
-                            </linearGradient>
-                        </defs>
-                        <XAxis dataKey="month" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                        <YAxis tickFormatter={formatCurrency} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                        <Area type="monotone" dataKey="revenue" stroke={BRAND_COLORS.success} strokeWidth={3} fillOpacity={1} fill="url(#colorRev)">
-                            <LabelList dataKey="revenue" position="top" formatter={(value) => formatCurrency(value)} style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
-                        </Area>
-                    </AreaChart>
-                </ResponsiveContainer>
-            </div>
+            <BrandAreaChart data={revenueTrend} categoryKey="month" valueKey="revenue" color={BRAND_COLORS.success} height={200} valueFormatter={formatCurrency} />
 
             <div style={{ marginTop: '24px' }}>
                 <button

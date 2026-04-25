@@ -59,7 +59,7 @@ const Sidebar = () => {
                 <div className="sidenav-logo-mark">A</div>
                 <div className="sidenav-logo-copy">
                     <div className="sidenav-logo-text">aegis.ai</div>
-                    <div className="sidenav-logo-sub">RBAC console</div>
+                    <div className="sidenav-logo-sub">CS Agent</div>
                 </div>
             </div>
 

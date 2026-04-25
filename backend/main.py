@@ -8,7 +8,11 @@ import uvicorn
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from config import settings
+from database import engine
+import models  # ensures all ORM classes are registered before create_all
 from routes import rbac, metrics, features
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="RBAC Dashboard API")
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LabelList } from 'recharts';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME } from '../config/brand';
+import { BRAND_COLORS } from '../config/brand';
+import BrandPieChart, { BrandBarChart } from '../components/BrandPieChart';
 
 const LegalComplianceDashboard = () => {
     const [overview, setOverview] = useState(null);
@@ -46,41 +46,12 @@ const LegalComplianceDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '18px', marginTop: '20px' }}>
                 <div>
                     <h4 style={{ fontSize: '12px', color: 'var(--neutral-2)', marginBottom: '10px' }}>Weekly Compliance Flag Trend</h4>
-                    <div style={{ height: '170px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={trendData} margin={{ top: 8, right: 6, left: -18, bottom: 0 }}>
-                                <XAxis dataKey="day" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                                <YAxis tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                                <Bar dataKey="flags" radius={[6, 6, 0, 0]} fill={BRAND_COLORS.error}>
-                                    <LabelList dataKey="flags" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
+                    <BrandBarChart data={trendData} categoryKey="day" valueKey="flags" color={BRAND_COLORS.error} height={170} />
                 </div>
                 <div>
                     <h4 style={{ fontSize: '12px', color: 'var(--neutral-2)', marginBottom: '10px' }}>Case Type Distribution</h4>
                     <div style={{ height: '170px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie data={breakdown} innerRadius={38} outerRadius={62} dataKey="value" stroke="none">
-                                    {breakdown.map((item, index) => (
-                                        <Cell key={item.name} fill={BRAND_PALETTES.legalBreakdown[index % BRAND_PALETTES.legalBreakdown.length]} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {breakdown.map((item, index) => (
-                            <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <span style={{ width: '8px', height: '8px', borderRadius: '999px', background: BRAND_PALETTES.legalBreakdown[index % BRAND_PALETTES.legalBreakdown.length] }} />
-                                    <span style={{ fontSize: '10px', color: 'var(--neutral-3)' }}>{item.name}</span>
-                                </div>
-                                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--neutral-1)' }}>{item.value}</span>
-                            </div>
-                        ))}
+                        <BrandPieChart data={breakdown} height={170} innerRadius={38} outerRadius={62} />
                     </div>
                 </div>
             </div>

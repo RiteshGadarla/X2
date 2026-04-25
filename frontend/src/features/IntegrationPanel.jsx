@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
-import { BRAND_PALETTES, CHART_THEME } from '../config/brand';
+import BrandPieChart from '../components/BrandPieChart';
 
 const IntegrationPanel = () => {
     const [channels, setChannels] = useState(null);
@@ -16,11 +15,11 @@ const IntegrationPanel = () => {
     if (!channels) return null;
 
     const data = [
-        { name: 'Email', value: channels.email, color: BRAND_PALETTES.channels[0] },
-        { name: 'Chat', value: channels.chat, color: BRAND_PALETTES.channels[1] },
-        { name: 'Portal', value: channels.portal, color: BRAND_PALETTES.channels[2] },
-        { name: 'Slack', value: channels.slack, color: BRAND_PALETTES.channels[3] },
-        { name: 'WhatsApp', value: channels.whatsapp, color: BRAND_PALETTES.channels[4] },
+        { name: 'Email', value: channels.email },
+        { name: 'Chat', value: channels.chat },
+        { name: 'Portal', value: channels.portal },
+        { name: 'Slack', value: channels.slack },
+        { name: 'WhatsApp', value: channels.whatsapp },
     ];
 
     return (
@@ -48,29 +47,13 @@ const IntegrationPanel = () => {
                 </div>
 
                 {/* Pie Chart */}
-                <div style={{ height: '220px', width: '100%', position: 'relative' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={data}
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={5}
-                                dataKey="value"
-                                label={({ name, value }) => `${name}: ${value}`}
-                                stroke="none"
-                            >
-                                {data.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ResponsiveContainer>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                        <div style={{ fontSize: '10px', color: 'var(--neutral-4)' }}>Peak Intake</div>
-                        <div style={{ fontSize: '12px', fontWeight: 700 }}>{channels.peak_hour}</div>
-                    </div>
-                </div>
+                <BrandPieChart
+                    data={data}
+                    height={220}
+                    innerRadius={60}
+                    outerRadius={80}
+                    centerLabel={{ label: 'Peak Intake', value: channels.peak_hour }}
+                />
             </div>
 
             <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>

@@ -85,6 +85,80 @@ MOCK_TICKETS = [
     {"id": "TCK-9920", "customer": "Oscorp", "tier": "Business", "summary": "Customer portal AI disclosure not shown", "time_remaining": "2h 15m", "status": "In Progress", "priority": "P2", "sentiment": "Frustrated"}
 ]
 
+SLA_PRIORITY_RANK = {
+    "Critical": 0,
+    "High": 1,
+    "Medium": 2,
+    "Low": 3
+}
+
+TICKET_PRIORITY_RANK = {
+    "P1": 0,
+    "P2": 1,
+    "P3": 2,
+    "P4": 3
+}
+
+CUSTOMER_TIER_RANK = {
+    "Enterprise": 0,
+    "Business": 1,
+    "Standard": 2
+}
+
+
+def parse_time_remaining_minutes(time_remaining):
+    total = 0
+
+    for part in time_remaining.split():
+        if part.endswith("d"):
+            total += int(part[:-1]) * 24 * 60
+        elif part.endswith("h"):
+            total += int(part[:-1]) * 60
+        elif part.endswith("m"):
+            total += int(part[:-1])
+
+    return total
+
+
+def get_sla_priority(time_remaining):
+    minutes = parse_time_remaining_minutes(time_remaining)
+
+    if minutes <= 60:
+        return "Critical"
+    if minutes <= 4 * 60:
+        return "High"
+    if minutes <= 8 * 60:
+        return "Medium"
+    return "Low"
+
+
+def enrich_ticket_sort_fields(ticket):
+    sla_priority = get_sla_priority(ticket["time_remaining"])
+
+    return {
+        **ticket,
+        "sla_priority": sla_priority,
+        "sla_priority_rank": SLA_PRIORITY_RANK[sla_priority],
+        "priority_rank": TICKET_PRIORITY_RANK.get(ticket["priority"], 99),
+        "customer_tier_rank": CUSTOMER_TIER_RANK.get(ticket["tier"], 99),
+        "time_remaining_minutes": parse_time_remaining_minutes(ticket["time_remaining"])
+    }
+
+
+def get_sorted_mock_tickets():
+    tickets = [enrich_ticket_sort_fields(ticket) for ticket in MOCK_TICKETS]
+
+    return sorted(
+        tickets,
+        key=lambda ticket: (
+            ticket["sla_priority_rank"],
+            ticket["priority_rank"],
+            ticket["customer_tier_rank"],
+            ticket["time_remaining_minutes"],
+            ticket["id"]
+        )
+    )
+
 MOCK_HIL_QUEUE = [
     {"id": "HIL-301", "ticket_id": "TCK-9901", "checkpoint_type": "VIP Interaction", "age": "45m", "customer_tier": "Enterprise"},
     {"id": "HIL-302", "ticket_id": "TCK-9908", "checkpoint_type": "Billing Dispute", "age": "2h", "customer_tier": "Business"},

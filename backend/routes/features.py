@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from mock_data import (
-    MOCK_TICKETS,
     MOCK_HIL_QUEUE,
     MOCK_KB_STATS,
     MOCK_VOC,
@@ -8,13 +7,14 @@ from mock_data import (
     MOCK_LEGAL_OVERVIEW,
     MOCK_CUSTOMER_PORTAL,
     MOCK_ACTIVITY_LOGS,
+    get_sorted_mock_tickets,
 )
 
 router = APIRouter()
 
 @router.get("/tickets")
 def get_tickets():
-    return {"tickets": MOCK_TICKETS}
+    return {"tickets": get_sorted_mock_tickets()}
 
 @router.get("/hil")
 def get_hil_queue():

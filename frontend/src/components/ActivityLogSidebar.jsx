@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { fetchJson } from '../api/client';
 
 const FALLBACK_LOGS = [
     { id: 'LOG-1042', time: '09:42', severity: 'success', source: 'SLA Monitor', message: 'P1 first-response window recovered for Acme Corp.', role_scope: 'Support' },
@@ -51,8 +52,7 @@ const ActivityLogSidebar = () => {
     const listRef = useRef(null);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/logs')
-            .then((res) => res.json())
+        fetchJson('/api/features/logs')
             .then((data) => {
                 if (Array.isArray(data.logs) && data.logs.length) {
                     setLogs(data.logs);

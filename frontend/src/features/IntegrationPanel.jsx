@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
+import { BRAND_PALETTES, CHART_THEME } from '../config/brand';
 
 const IntegrationPanel = () => {
     const [channels, setChannels] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/channels')
-            .then(res => res.json())
+        fetchJson('/api/features/channels')
             .then(data => setChannels(data))
             .catch(err => console.error(err));
     }, []);
@@ -15,11 +16,11 @@ const IntegrationPanel = () => {
     if (!channels) return null;
 
     const data = [
-        { name: 'Email', value: channels.email, color: '#5929d0' },
-        { name: 'Chat', value: channels.chat, color: '#CF008B' },
-        { name: 'Portal', value: channels.portal, color: '#22D3EE' },
-        { name: 'Slack', value: channels.slack, color: '#16A34A' },
-        { name: 'WhatsApp', value: channels.whatsapp, color: '#E4902E' },
+        { name: 'Email', value: channels.email, color: BRAND_PALETTES.channels[0] },
+        { name: 'Chat', value: channels.chat, color: BRAND_PALETTES.channels[1] },
+        { name: 'Portal', value: channels.portal, color: BRAND_PALETTES.channels[2] },
+        { name: 'Slack', value: channels.slack, color: BRAND_PALETTES.channels[3] },
+        { name: 'WhatsApp', value: channels.whatsapp, color: BRAND_PALETTES.channels[4] },
     ];
 
     return (
@@ -56,18 +57,18 @@ const IntegrationPanel = () => {
                                 outerRadius={80}
                                 paddingAngle={5}
                                 dataKey="value"
+                                label={({ name, value }) => `${name}: ${value}`}
                                 stroke="none"
                             >
                                 {data.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
                             </Pie>
-                            <Tooltip contentStyle={{borderRadius: '8px', border: '1px solid var(--neutral-7)', fontSize: '11px'}} />
                         </PieChart>
                     </ResponsiveContainer>
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
                         <div style={{ fontSize: '10px', color: 'var(--neutral-4)' }}>Peak Intake</div>
-                        <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{channels.peak_hour}</div>
+                        <div style={{ fontSize: '12px', fontWeight: 700 }}>{channels.peak_hour}</div>
                     </div>
                 </div>
             </div>

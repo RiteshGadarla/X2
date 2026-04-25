@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
 
 const CustomerPortal = () => {
@@ -21,8 +22,7 @@ const CustomerPortal = () => {
     };
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/customer-portal')
-            .then((res) => res.json())
+        fetchJson('/api/features/customer-portal')
             .then((data) => setPortalData(data))
             .catch((err) => console.error(err));
     }, []);
@@ -33,7 +33,7 @@ const CustomerPortal = () => {
         <div className="card-demo" style={{ marginTop: '20px', borderLeft: '4px solid var(--cyan)' }}>
             <div className="card-demo-header">
                 <h3 className="type-h4">Customer Ticket Portal</h3>
-                <span className="badge badge-cyan">UI-09</span>
+                <span className="badge badge-cyan">Customer Portal</span>
             </div>
             <p className="type-body" style={{ color: 'var(--neutral-4)' }}>
                 Submit support tickets, track SLA commitments, and get linked knowledge base help in one place.

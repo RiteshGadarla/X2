@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
+import { BRAND_COLORS, CHART_THEME } from '../config/brand';
 
 const SentimentFeed = () => {
     const [tickets, setTickets] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/tickets')
-            .then(res => res.json())
+        fetchJson('/api/features/tickets')
             .then(data => {
                 // Prioritize highest-risk sentiment states at top.
                 const rank = { Angry: 0, Frustrated: 1, Neutral: 2 };
@@ -39,10 +40,11 @@ const SentimentFeed = () => {
             <div style={{ marginTop: '16px', height: '150px', border: '1px solid var(--neutral-7)', borderRadius: 'var(--radius-sm)', padding: '8px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={sentimentData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--neutral-4)' }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 10, fill: 'var(--neutral-4)' }} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid var(--neutral-7)', fontSize: '11px' }} />
-                        <Bar dataKey="count" fill="var(--pink)" radius={[6, 6, 0, 0]} />
+                        <XAxis dataKey="name" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                        <YAxis tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                        <Bar dataKey="count" fill={BRAND_COLORS.pink} radius={[6, 6, 0, 0]}>
+                            <LabelList dataKey="count" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
+                        </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             </div>

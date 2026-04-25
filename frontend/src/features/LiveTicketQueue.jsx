@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
+import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME } from '../config/brand';
 
 const slaPriorityRank = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 const ticketPriorityRank = { P1: 0, P2: 1, P3: 2, P4: 3 };
 const customerTierRank = { Enterprise: 0, Business: 1, Standard: 2 };
-const priorityColors = { P1: '#DC2626', P2: '#E4902E', P3: '#5929d0', P4: '#22D3EE' };
+const priorityColors = BRAND_PALETTES.priorityByTicket;
 
 const parseTimeRemainingMinutes = (timeRemaining = '') => {
     return timeRemaining.split(' ').reduce((total, part) => {
@@ -50,8 +52,7 @@ const LiveTicketQueue = () => {
     const [tickets, setTickets] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/tickets')
-            .then(res => res.json())
+        fetchJson('/api/features/tickets')
             .then(data => setTickets(data.tickets))
             .catch(err => console.error(err));
     }, []);
@@ -122,12 +123,11 @@ const LiveTicketQueue = () => {
                     <div style={{ minHeight: '92px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                                <Pie data={priorityData} innerRadius={30} outerRadius={46} dataKey="value" stroke="var(--neutral-9)" strokeWidth={2}>
+                                <Pie data={priorityData} innerRadius={30} outerRadius={46} dataKey="value" stroke={BRAND_COLORS.neutral9} strokeWidth={2} label={({ name, value }) => `${name}: ${value}`}>
                                     {priorityData.map((entry) => (
                                         <Cell key={entry.name} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid var(--neutral-7)', fontSize: '11px' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>

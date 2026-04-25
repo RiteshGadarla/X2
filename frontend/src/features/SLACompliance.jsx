@@ -1,5 +1,6 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { emitMockAction } from '../utils/mockActionBus';
+import { BRAND_COLORS, CHART_THEME } from '../config/brand';
 
 const SLACompliance = () => {
     const data = [
@@ -35,18 +36,21 @@ const SLACompliance = () => {
             <div style={{ height: '240px', width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <XAxis dataKey="name" tick={{fontSize: 10, fill: 'var(--neutral-4)'}} axisLine={false} tickLine={false} />
-                        <YAxis tick={{fontSize: 10, fill: 'var(--neutral-4)'}} axisLine={false} tickLine={false} />
-                        <Tooltip cursor={{fill: 'var(--neutral-8)'}} contentStyle={{borderRadius: '8px', border: '1px solid var(--neutral-7)', fontSize: '11px'}} />
-                        <Bar dataKey="compliance" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="target" fill="var(--neutral-6)" radius={[4, 4, 0, 0]} />
+                        <XAxis dataKey="name" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                        <YAxis tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                        <Bar dataKey="compliance" fill={BRAND_COLORS.primary} radius={[4, 4, 0, 0]}>
+                            <LabelList dataKey="compliance" position="top" formatter={(value) => `${value}%`} style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
+                        </Bar>
+                        <Bar dataKey="target" fill={BRAND_COLORS.neutral6} radius={[4, 4, 0, 0]}>
+                            <LabelList dataKey="target" position="top" formatter={(value) => `${value}%`} style={{ fill: 'var(--neutral-4)', fontSize: '10px', fontWeight: 600 }} />
+                        </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             </div>
             
             <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <div style={{width:'10px', height:'10px', background:'var(--primary)', borderRadius:'2px'}}></div><span style={{fontSize:'10px', color:'var(--neutral-4)'}}>Actual Compliance</span>
-                <div style={{width:'10px', height:'10px', background:'var(--neutral-6)', borderRadius:'2px', marginLeft:'10px'}}></div><span style={{fontSize:'10px', color:'var(--neutral-4)'}}>Target SLA</span>
+                <div style={{width:'10px', height:'10px', background: BRAND_COLORS.primary, borderRadius:'2px'}}></div><span style={{fontSize:'10px', color:'var(--neutral-4)'}}>Actual Compliance</span>
+                <div style={{width:'10px', height:'10px', background: BRAND_COLORS.neutral6, borderRadius:'2px', marginLeft:'10px'}}></div><span style={{fontSize:'10px', color:'var(--neutral-4)'}}>Target SLA</span>
             </div>
 
             <div style={{ marginTop: '24px' }}>

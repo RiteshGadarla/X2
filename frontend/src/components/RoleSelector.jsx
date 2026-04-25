@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../state/AuthContext';
+import { useAuth } from '../state/auth-context';
 import { Shield, ShieldCheck, ChevronRight } from 'lucide-react';
 
 const RoleSelector = () => {
@@ -11,11 +11,11 @@ const RoleSelector = () => {
     };
 
     return (
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gradient-hero)' }}>
-            <div className="card-demo" style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <div className="card-demo-icon" style={{ margin: '0 auto 12px' }}>
-                        <Shield color="var(--primary)" size={20} />
+        <div className="role-selector-page">
+            <div className="card-demo role-selector-card">
+                <div className="role-selector-header">
+                    <div className="card-demo-icon role-selector-icon">
+                        <Shield size={20} />
                     </div>
                     <h2 className="type-h3" style={{ marginBottom: '8px' }}>aegis.ai Access Control</h2>
                     <p className="type-body" style={{ color: 'var(--neutral-4)' }}>Select a role profile to initialize the RBAC dashboard context.</p>

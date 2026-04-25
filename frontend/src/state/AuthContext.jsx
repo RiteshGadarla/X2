@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { fetchJson } from '../api/client';
+import { AuthContext } from './auth-context';
 
-const AuthContext = createContext();
 const FALLBACK_ROLES = [
     { id: 'SUPPORT_LEAD', name: 'Support Lead' },
     { id: 'SUPPORT_MANAGER', name: 'Support Manager / CSM' },
@@ -21,16 +22,14 @@ const FALLBACK_PERMISSIONS = {
 
 export const AuthProvider = ({ children }) => {
     const [role, setRole] = useState(null);
-    const [permissions, setPermissions] = useState([]);
+    const [permissionsByRole, setPermissionsByRole] = useState({});
     const [rolesList, setRolesList] = useState(FALLBACK_ROLES);
     const [rolesLoading, setRolesLoading] = useState(true);
     const [rolesError, setRolesError] = useState(null);
 
     // Fetch master roles list
     useEffect(() => {
-        setRolesLoading(true);
-        fetch('http://localhost:8000/api/rbac/roles')
-            .then((res) => res.json())
+        fetchJson('/api/rbac/roles')
             .then((data) => {
                 if (Array.isArray(data.roles) && data.roles.length) {
                     setRolesList(data.roles);
@@ -51,19 +50,23 @@ export const AuthProvider = ({ children }) => {
     // Permission retrieval with fallback guarantees role usability.
     useEffect(() => {
         if (role) {
-            setPermissions(FALLBACK_PERMISSIONS[role] || []);
-            fetch(`http://localhost:8000/api/rbac/roles/${role}/permissions`)
-                .then((res) => res.json())
+            fetchJson(`/api/rbac/roles/${role}/permissions`)
                 .then((data) => {
                     if (Array.isArray(data.permissions) && data.permissions.length) {
-                        setPermissions(data.permissions);
+                        setPermissionsByRole((current) => ({
+                            ...current,
+                            [role]: data.permissions,
+                        }));
                     }
                 })
                 .catch((err) => console.error('Error fetching permissions:', err));
-        } else {
-            setPermissions([]);
         }
     }, [role]);
+
+    const permissions = useMemo(() => {
+        if (!role) return [];
+        return permissionsByRole[role] || FALLBACK_PERMISSIONS[role] || [];
+    }, [permissionsByRole, role]);
 
     const canAccess = (requiredPermission) => permissions.includes(requiredPermission);
 
@@ -73,5 +76,3 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
-export const useAuth = () => useContext(AuthContext);

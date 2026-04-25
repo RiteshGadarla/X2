@@ -1,5 +1,6 @@
-import { AreaChart, Area, BarChart, Bar, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, LabelList } from 'recharts';
-import { useAuth } from '../state/AuthContext';
+import { AreaChart, Area, BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, LabelList } from 'recharts';
+import { useAuth } from '../state/auth-context';
+import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME, ROLE_PILLARS } from '../config/brand';
 
 const MetricBox = ({ label, value }) => (
     <div className="hero-metric-box">
@@ -12,7 +13,7 @@ const ROLE_HERO_CONTENT = {
     SUPPORT_LEAD: {
         title: 'Support Operations Command Center',
         subtitle: 'Prioritize first-contact resolution, keep SLA clocks healthy, and provide proactive customer updates in every ticket stage.',
-        pillars: ['UI-01 Live Intake', 'UI-02 SLA Focus', 'UI-07 KB Drafting'],
+        pillars: ROLE_PILLARS.SUPPORT_LEAD,
         access: ['Assigned Queues', 'Ticket Detail Access', 'SLA View', 'KB Draft Submission'],
         chartTitle: '7-Day Ticket Resolution Trend',
         trendData: [
@@ -25,15 +26,15 @@ const ROLE_HERO_CONTENT = {
             { label: 'Sun', value: 42 }
         ],
         distribution: [
-            { name: 'Resolved', value: 64, color: 'var(--success)' },
-            { name: 'In Progress', value: 26, color: 'var(--primary)' },
-            { name: 'At Risk', value: 10, color: 'var(--warning)' }
+            { name: 'Resolved', value: 64, color: BRAND_PALETTES.roleStatus[0] },
+            { name: 'In Progress', value: 26, color: BRAND_PALETTES.roleStatus[1] },
+            { name: 'At Risk', value: 10, color: BRAND_PALETTES.roleStatus[2] }
         ]
     },
     SUPPORT_MANAGER: {
         title: 'Manager Escalation and SLA Control',
         subtitle: 'Balance team throughput, SLA governance, and mandatory HIL approvals for billing, legal, VIP, and angry customer tickets.',
-        pillars: ['UI-03 Sentiment Feed', 'UI-06 HIL Review', 'UI-08 VoC Insights'],
+        pillars: ROLE_PILLARS.SUPPORT_MANAGER,
         access: ['All Queue Access', 'HIL Approval Control', 'CSAT + SLA Dashboards', 'KB Publication'],
         chartTitle: '14-Day SLA Compliance Trend',
         trendData: [
@@ -46,15 +47,15 @@ const ROLE_HERO_CONTENT = {
             { label: 'Today', value: 91 }
         ],
         distribution: [
-            { name: 'Healthy', value: 71, color: 'var(--success)' },
-            { name: 'Warning', value: 20, color: 'var(--warning)' },
-            { name: 'Breach', value: 9, color: 'var(--error)' }
+            { name: 'Healthy', value: 71, color: BRAND_COLORS.success },
+            { name: 'Warning', value: 20, color: BRAND_COLORS.warning },
+            { name: 'Breach', value: 9, color: BRAND_COLORS.error }
         ]
     },
     VP_CUSTOMER_SUCCESS: {
         title: 'Executive Customer Success Overview',
         subtitle: 'Track enterprise health with SLA adherence, CSAT momentum, recurring issue visibility, and strategic risk reduction outcomes.',
-        pillars: ['UI-11 Executive View', 'UI-08 VoC Panel', 'Escalation Overrides'],
+        pillars: ROLE_PILLARS.VP_CUSTOMER_SUCCESS,
         access: ['Executive Dashboard', 'SLA Exception Approvals', 'VIP Handling Override', 'Final Escalation Decisions'],
         chartTitle: 'Quarterly Protected Revenue Trend',
         trendData: [
@@ -64,9 +65,9 @@ const ROLE_HERO_CONTENT = {
             { label: 'Q4', value: 1200000 }
         ],
         distribution: [
-            { name: 'Enterprise', value: 58, color: 'var(--primary)' },
-            { name: 'Business', value: 29, color: 'var(--cyan)' },
-            { name: 'Standard', value: 13, color: 'var(--pink)' }
+            { name: 'Enterprise', value: 58, color: BRAND_COLORS.primary },
+            { name: 'Business', value: 29, color: BRAND_COLORS.cyan },
+            { name: 'Standard', value: 13, color: BRAND_COLORS.pink }
         ]
     },
     LEGAL_COMPLIANCE: {
@@ -85,15 +86,15 @@ const ROLE_HERO_CONTENT = {
             { label: 'Sun', value: 1 }
         ],
         distribution: [
-            { name: 'Legal Cases', value: 44, color: 'var(--error)' },
-            { name: 'Privacy Review', value: 33, color: 'var(--warning)' },
-            { name: 'Policy Advisory', value: 23, color: 'var(--primary)' }
+            { name: 'Legal Cases', value: 44, color: BRAND_COLORS.error },
+            { name: 'Privacy Review', value: 33, color: BRAND_COLORS.warning },
+            { name: 'Policy Advisory', value: 23, color: BRAND_COLORS.primary }
         ]
     },
     ADMIN_OPS: {
         title: 'Integration and Channel Reliability Hub',
         subtitle: 'Monitor channel ingestion, API integration health, and operational readiness across ITSM, CRM, and support channels.',
-        pillars: ['UI-04 Channel Volume', 'Integration Monitoring', 'Operational Availability'],
+        pillars: ROLE_PILLARS.ADMIN_OPS,
         access: ['Integration Settings', 'Channel Health', 'System Diagnostics', 'Config Governance'],
         chartTitle: 'Weekly Channel Volume',
         trendData: [
@@ -104,15 +105,15 @@ const ROLE_HERO_CONTENT = {
             { label: 'WhatsApp', value: 50 }
         ],
         distribution: [
-            { name: 'Healthy Integrations', value: 80, color: 'var(--success)' },
-            { name: 'Warnings', value: 15, color: 'var(--warning)' },
-            { name: 'Failed Syncs', value: 5, color: 'var(--error)' }
+            { name: 'Healthy Integrations', value: 80, color: BRAND_COLORS.success },
+            { name: 'Warnings', value: 15, color: BRAND_COLORS.warning },
+            { name: 'Failed Syncs', value: 5, color: BRAND_COLORS.error }
         ]
     },
     CUSTOMER: {
         title: 'Customer Support Portal Overview',
         subtitle: 'Submit issues faster, view real-time ticket progress, and receive structured updates with clear SLA targets and next steps.',
-        pillars: ['UI-09 Customer Portal', 'AI Disclosure + Human Escalation', 'Linked KB Guidance'],
+        pillars: ROLE_PILLARS.CUSTOMER,
         access: ['Ticket Submission', 'Status Tracking', 'SLA Target Visibility', 'Request Human Support'],
         chartTitle: 'Recent Ticket Status Flow',
         trendData: [
@@ -123,9 +124,9 @@ const ROLE_HERO_CONTENT = {
             { label: 'Resolved', value: 10 }
         ],
         distribution: [
-            { name: 'Portal', value: 48, color: 'var(--primary)' },
-            { name: 'Email', value: 32, color: 'var(--cyan)' },
-            { name: 'Chat', value: 20, color: 'var(--pink)' }
+            { name: 'Portal', value: 48, color: BRAND_COLORS.primary },
+            { name: 'Email', value: 32, color: BRAND_COLORS.cyan },
+            { name: 'Chat', value: 20, color: BRAND_COLORS.pink }
         ]
     }
 };
@@ -150,7 +151,7 @@ const HeroDashboard = ({ metrics }) => {
                 <div className="dashboard-hero-context">
                     Active Context: {roleName}
                 </div>
-                <h1 style={{ margin: '0 0 12px', color: '#fff' }}>{roleHero.title}</h1>
+                <h1 style={{ margin: '0 0 12px', color: 'var(--neutral-9)' }}>{roleHero.title}</h1>
                 <p style={{ maxWidth: '760px' }}>{description || roleHero.subtitle}</p>
                 <div className="badge-row">
                     {roleHero.pillars.map((item) => (
@@ -176,14 +177,15 @@ const HeroDashboard = ({ metrics }) => {
                             <AreaChart data={roleHero.trendData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="heroTrend" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.35} />
-                                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                                        <stop offset="5%" stopColor={BRAND_COLORS.primary} stopOpacity={0.35} />
+                                        <stop offset="95%" stopColor={BRAND_COLORS.primary} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--neutral-4)' }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fontSize: 10, fill: 'var(--neutral-4)' }} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid var(--neutral-7)', fontSize: '11px' }} />
-                                <Area type="monotone" dataKey="value" stroke="var(--primary)" fill="url(#heroTrend)" strokeWidth={2.5} />
+                                <XAxis dataKey="label" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                                <YAxis tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                                <Area type="monotone" dataKey="value" stroke={BRAND_COLORS.primary} fill="url(#heroTrend)" strokeWidth={2.5}>
+                                    <LabelList dataKey="value" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
+                                </Area>
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -195,7 +197,7 @@ const HeroDashboard = ({ metrics }) => {
                     </div>
                     <ul className="dashboard-hero-access-list">
                         {roleHero.access.map((item) => (
-                            <li key={item}>- {item}</li>
+                            <li key={item}>{item}</li>
                         ))}
                     </ul>
                     <div className="dashboard-hero-bars">

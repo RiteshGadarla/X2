@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
+import { BRAND_COLORS, CHART_THEME } from '../config/brand';
 
 const VocPanel = () => {
     const [voc, setVoc] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/voc')
-            .then(res => res.json())
+        fetchJson('/api/features/voc')
             .then(data => setVoc(data))
             .catch(err => console.error(err));
     }, []);
@@ -49,10 +50,11 @@ const VocPanel = () => {
                     <div style={{ height: '160px', width: '100%' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={trendData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                                <XAxis dataKey="week" tick={{fontSize: 9, fill: 'var(--neutral-4)'}} axisLine={false} tickLine={false} />
-                                <YAxis domain={[3, 5]} tick={{fontSize: 9, fill: 'var(--neutral-4)'}} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{borderRadius: '6px', fontSize: '11px', padding: '4px 8px'}} />
-                                <Line type="monotone" dataKey="csat" stroke="var(--pink)" strokeWidth={3} dot={{r: 4, fill: 'var(--pink)'}} activeDot={{r: 6}} />
+                                <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                                <YAxis domain={[3, 5]} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                                <Line type="monotone" dataKey="csat" stroke={BRAND_COLORS.pink} strokeWidth={3} dot={{r: 4, fill: BRAND_COLORS.pink}}>
+                                    <LabelList dataKey="csat" position="top" style={{ fill: 'var(--neutral-2)', fontSize: '10px', fontWeight: 700 }} />
+                                </Line>
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -65,7 +67,7 @@ const VocPanel = () => {
                         {voc.feature_requests.map((f, i) => (
                             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: 'var(--neutral-8)', borderRadius: 'var(--radius-sm)' }}>
                                 <span style={{ fontSize: '10.5px', color: 'var(--neutral-1)' }}>{f.area}</span>
-                                <span style={{ fontSize: '10.5px', fontWeight: 'bold', color: 'var(--primary)' }}>{f.frequency}</span>
+                                <span style={{ fontSize: '10.5px', fontWeight: 700, color: 'var(--primary)' }}>{f.frequency}</span>
                             </div>
                         ))}
                     </div>

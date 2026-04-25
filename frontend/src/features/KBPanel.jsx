@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
 
 const KBPanel = () => {
     const [stats, setStats] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/kb')
-            .then(res => res.json())
+        fetchJson('/api/features/kb')
             .then(data => setStats(data))
             .catch(err => console.error(err));
     }, []);

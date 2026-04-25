@@ -1,5 +1,4 @@
-import React from 'react';
-import { useAuth } from '../state/AuthContext';
+import { useAuth } from '../state/auth-context';
 
 export const ProtectedComponent = ({ permission, permissions, children, fallback = null }) => {
     const { canAccess } = useAuth();

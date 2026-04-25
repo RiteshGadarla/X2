@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../state/AuthContext';
+import { useAuth } from '../state/auth-context';
 import HeroDashboard from '../components/HeroDashboard';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
 const ACTION_CATALOG = {
     VIEW_TICKETS: { label: 'Monitor live ticket intake and queue state', route: '/tickets' },
@@ -45,8 +46,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (role) {
-            fetch(`http://localhost:8000/api/metrics/${role}`)
-                .then(res => res.json())
+            fetchJson(`/api/metrics/${role}`)
                 .then(data => setMetrics(data.metrics))
                 .catch(err => console.error("Error fetching metrics:", err));
         }

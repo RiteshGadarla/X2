@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
+import { BRAND_COLORS, BRAND_PALETTES, CHART_THEME } from '../config/brand';
 
 const HILReviewQueue = () => {
     const [queue, setQueue] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/features/hil')
-            .then(res => res.json())
+        fetchJson('/api/features/hil')
             .then(data => setQueue(data.queue))
             .catch(err => console.error(err));
     }, []);
@@ -15,7 +16,7 @@ const HILReviewQueue = () => {
     const checkpointSummary = ['VIP Interaction', 'Billing Dispute', 'Legal Correspondence'].map((type, index) => ({
         name: type,
         value: queue.filter((entry) => entry.checkpoint_type === type).length,
-        color: ['#5929d0', '#E4902E', '#DC2626'][index]
+        color: BRAND_PALETTES.checkpoint[index]
     })).filter((entry) => entry.value > 0);
 
     return (
@@ -32,7 +33,15 @@ const HILReviewQueue = () => {
                     <div style={{ height: '120px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <Pie data={checkpointSummary} innerRadius={24} outerRadius={45} dataKey="value" stroke="none">
+                                <Pie
+                                    data={checkpointSummary}
+                                    innerRadius={24}
+                                    outerRadius={45}
+                                    dataKey="value"
+                                    stroke={BRAND_COLORS.neutral9}
+                                    strokeWidth={2}
+                                    label={({ name, value }) => `${name}: ${value}`}
+                                >
                                     {checkpointSummary.map((entry) => (
                                         <Cell key={entry.name} fill={entry.color} />
                                     ))}

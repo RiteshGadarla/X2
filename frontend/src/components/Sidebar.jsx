@@ -1,93 +1,196 @@
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../state/auth-context';
-import { LayoutDashboard, Ticket, BarChart3, ShieldAlert, BookOpen, Settings, LogOut, MessageSquareHeart, TrendingUp, Scale, UserRound } from 'lucide-react';
+import {
+    LayoutDashboard, Ticket, BarChart3, ShieldAlert, BookOpen,
+    MessageSquareHeart, TrendingUp, Scale, UserRound, Plug, Radio, Users
+} from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const navSections = [
-    {
-        label: 'Overview',
-        items: [
-            { label: 'Dashboard', route: '/', icon: LayoutDashboard },
-        ],
-    },
-    {
-        label: 'Support',
-        items: [
-            { label: 'Tickets', route: '/tickets', icon: Ticket, permissions: ['VIEW_TICKETS'] },
-            { label: 'SLA', route: '/sla', icon: BarChart3, permissions: ['VIEW_SLA'] },
-            { label: 'HIL Review', route: '/hil', icon: ShieldAlert, permissions: ['VIEW_HIL_STATUS', 'APPROVE_HIL', 'APPROVE_HIL_OVERRIDE', 'MANAGE_LEGAL_CORRESPONDENCE'] },
-            { label: 'Sentiment', route: '/sentiment', icon: MessageSquareHeart, permissions: ['VIEW_SENTIMENT'] },
-            { label: 'Knowledge Base', route: '/kb', icon: BookOpen, permissions: ['DRAFT_KB', 'PUBLISH_KB', 'VIEW_KB'] },
-        ],
-    },
-    {
-        label: 'Insights',
-        items: [
-            { label: 'VoC', route: '/voc', icon: TrendingUp, permissions: ['VIEW_VOC'] },
-            { label: 'Executive', route: '/exec', icon: BarChart3, permissions: ['VIEW_EXEC_DASH'] },
-        ],
-    },
-    {
-        label: 'Governance',
-        items: [
-            { label: 'Legal', route: '/legal', icon: Scale, permissions: ['VIEW_LEGAL_TICKETS'] },
-            { label: 'Integrations', route: '/integrations', icon: Settings, permissions: ['MANAGE_INTEGRATIONS'] },
-            { label: 'Portal', route: '/portal', icon: UserRound, permissions: ['VIEW_CUSTOMER_PORTAL'] },
-        ],
-    },
-];
+const ROLE_NAV = {
+    SUPPORT_LEAD: [
+        { label: 'Home', route: '/support-lead', icon: LayoutDashboard },
+        { label: 'Tickets', route: '/support-lead/tickets', icon: Ticket },
+        { label: 'SLA', route: '/support-lead/sla', icon: BarChart3 },
+        { label: 'HIL Review', route: '/support-lead/hil', icon: ShieldAlert },
+        { label: 'Knowledge Base', route: '/support-lead/kb', icon: BookOpen },
+    ],
+    SUPPORT_MANAGER: [
+        { label: 'Home', route: '/support-manager', icon: LayoutDashboard },
+        { label: 'Sentiment', route: '/support-manager/sentiment', icon: MessageSquareHeart },
+        { label: 'HIL Review', route: '/support-manager/hil', icon: ShieldAlert },
+        { label: 'Knowledge Base', route: '/support-manager/kb', icon: BookOpen },
+        { label: 'VoC', route: '/support-manager/voc', icon: TrendingUp },
+    ],
+    VP_CUSTOMER_SUCCESS: [
+        { label: 'Home', route: '/vp', icon: LayoutDashboard },
+        { label: 'Executive', route: '/vp/exec', icon: BarChart3 },
+        { label: 'VoC', route: '/vp/voc', icon: TrendingUp },
+        { label: 'HIL Override', route: '/vp/hil', icon: ShieldAlert },
+    ],
+    LEGAL_COMPLIANCE: [
+        { label: 'Home', route: '/legal', icon: LayoutDashboard },
+        { label: 'Legal Queue', route: '/legal/queue', icon: Scale },
+        { label: 'HIL Review', route: '/legal/hil', icon: ShieldAlert },
+        { label: 'Knowledge Base', route: '/legal/kb', icon: BookOpen },
+    ],
+    ADMIN_OPS: [
+        { label: 'Home', route: '/admin', icon: LayoutDashboard },
+        { label: 'Integrations', route: '/admin/integrations', icon: Plug },
+        { label: 'Channels', route: '/admin/channels', icon: Radio },
+    ],
+    CUSTOMER: [
+        { label: 'Dashboard', route: '/customer', icon: LayoutDashboard },
+        { label: 'My Portal', route: '/customer/portal', icon: UserRound },
+    ],
+};
 
-const Taskbar = () => {
-    const { setRole, canAccess } = useAuth();
+const ROLE_COLORS = {
+    SUPPORT_LEAD: '#6B8EF0',
+    SUPPORT_MANAGER: '#5929d0',
+    VP_CUSTOMER_SUCCESS: '#A855F7',
+    LEGAL_COMPLIANCE: '#01CAB8',
+    ADMIN_OPS: '#8B5CF6',
+    CUSTOMER: '#CF008B',
+};
+
+const ROLE_INITIALS = {
+    SUPPORT_LEAD: 'SL',
+    SUPPORT_MANAGER: 'SM',
+    VP_CUSTOMER_SUCCESS: 'VP',
+    LEGAL_COMPLIANCE: 'LC',
+    ADMIN_OPS: 'AO',
+    CUSTOMER: 'CU',
+};
+
+const AppSidebar = () => {
+    const { role, setRole, rolesList } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const canShowItem = (item) => !item.permissions || item.permissions.some((p) => canAccess(p));
-    const allItems = navSections.flatMap(s => s.items).filter(canShowItem);
+    const [showPanel, setShowPanel] = useState(false);
+    const [panelPos, setPanelPos] = useState({ bottom: 60 });
+    const roleBtnRef = useRef(null);
+    const panelRef = useRef(null);
+
+    const items = ROLE_NAV[role] || [];
+    const homeRoute = items[0]?.route || '/';
+    const roleColor = ROLE_COLORS[role] || '#5929d0';
+
+    const openPanel = () => {
+        if (roleBtnRef.current) {
+            const rect = roleBtnRef.current.getBoundingClientRect();
+            // always open upward: anchor panel bottom to button top + small gap
+            setPanelPos({ bottom: window.innerHeight - rect.top + 6 });
+        }
+        setShowPanel(v => !v);
+    };
+
+    useEffect(() => {
+        if (!showPanel) return;
+        const close = (e) => {
+            if (!panelRef.current?.contains(e.target) && !roleBtnRef.current?.contains(e.target)) {
+                setShowPanel(false);
+            }
+        };
+        document.addEventListener('mousedown', close);
+        return () => document.removeEventListener('mousedown', close);
+    }, [showPanel]);
 
     return (
-        <header className="taskbar">
-            {/* Logo */}
-            <div className="taskbar-logo" onClick={() => navigate('/')}>
-                <div className="sidenav-logo-mark">A</div>
-                <span className="taskbar-brand">aegis.ai</span>
-            </div>
-
-            <div className="taskbar-divider" />
-
-            {/* Nav items */}
-            <nav className="taskbar-nav">
-                {allItems.map((item) => {
-                    const Icon = item.icon;
-                    const active = location.pathname === item.route;
-                    return (
-                        <button
-                            key={item.route}
-                            type="button"
-                            className={`taskbar-item${active ? ' active' : ''}`}
-                            onClick={() => navigate(item.route)}
-                            title={item.label}
-                        >
-                            <Icon size={16} />
-                            <span>{item.label}</span>
-                        </button>
-                    );
-                })}
-            </nav>
-
-            {/* Right: switch role */}
-            <div className="taskbar-actions">
+        <>
+            <aside className="app-sidebar">
+                {/* Logo */}
                 <button
                     type="button"
-                    className="taskbar-item taskbar-logout"
-                    onClick={() => setRole(null)}
-                    title="Switch Role"
+                    className="sidebar-logo-btn"
+                    onClick={() => navigate(homeRoute)}
+                    data-label="aegis.ai"
                 >
-                    <LogOut size={15} />
-                    <span>Switch Role</span>
+                    <div className="sidenav-logo-mark">A</div>
                 </button>
-            </div>
-        </header>
+
+                <div className="sidebar-sep" />
+
+                {/* Role nav icons */}
+                <nav className="sidebar-nav">
+                    {items.map((item) => {
+                        const Icon = item.icon;
+                        const active = location.pathname === item.route;
+                        return (
+                            <button
+                                key={item.route}
+                                type="button"
+                                className={`sidebar-item${active ? ' active' : ''}`}
+                                onClick={() => navigate(item.route)}
+                                data-label={item.label}
+                            >
+                                <Icon size={20} />
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                <div className="sidebar-spacer" />
+
+                <div className="sidebar-sep" />
+
+                {/* Role selector button — pinned to bottom */}
+                <button
+                    ref={roleBtnRef}
+                    type="button"
+                    className={`sidebar-role-toggle${showPanel ? ' open' : ''}`}
+                    onClick={openPanel}
+                    data-label={role ? `Role: ${role.replace(/_/g, ' ')}` : 'Select Role'}
+                    style={{ marginBottom: '4px' }}
+                >
+                    {role ? (
+                        <span className="sidebar-role-avatar" style={{ background: roleColor }}>
+                            {ROLE_INITIALS[role]}
+                        </span>
+                    ) : (
+                        <span className="sidebar-role-avatar sidebar-role-avatar--empty">
+                            <Users size={16} />
+                        </span>
+                    )}
+                </button>
+            </aside>
+
+            {/* Role selection panel — opens upward from bottom button */}
+            {showPanel && (
+                <div
+                    ref={panelRef}
+                    className="sidebar-role-panel"
+                    style={{ bottom: panelPos.bottom, top: 'auto' }}
+                >
+                    <div className="sidebar-role-panel-header">Switch Role</div>
+                    {rolesList.map((r) => {
+                        const firstRoute = (ROLE_NAV[r.id] || [])[0]?.route;
+                        return (
+                            <button
+                                key={r.id}
+                                type="button"
+                                className={`sidebar-role-option${role === r.id ? ' selected' : ''}`}
+                                onClick={() => {
+                                    setRole(r.id);
+                                    setShowPanel(false);
+                                    if (firstRoute) navigate(firstRoute);
+                                }}
+                            >
+                                <span
+                                    className="role-option-dot"
+                                    style={{ background: ROLE_COLORS[r.id] || '#5929d0' }}
+                                />
+                                <span className="role-option-name">{r.name}</span>
+                                {role === r.id && (
+                                    <span className="role-option-check">✓</span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </>
     );
 };
 
-export default Taskbar;
+export default AppSidebar;

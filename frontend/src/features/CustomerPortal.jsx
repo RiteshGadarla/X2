@@ -4,27 +4,87 @@ import { emitMockAction } from '../utils/mockActionBus';
 
 const CustomerPortal = () => {
     const [portalData, setPortalData] = useState(null);
+    const [customerId, setCustomerId] = useState(null);
+    const [myTickets, setMyTickets] = useState([]);
     const [form, setForm] = useState({
+        title: '',
         product_area: 'Payments',
-        issue_type: 'Bug',
+        issue_type: 'Billing/Account',
         description: '',
         business_impact: ''
     });
     const [acknowledged, setAcknowledged] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const submitTicket = () => {
-        if (!form.description.trim() || !form.business_impact.trim()) {
-            emitMockAction('Ticket not submitted', 'Please complete description and business impact before submit.', 'warning');
+    const fetchMyTickets = async () => {
+        try {
+            const tickets = await fetchJson('/api/tickets/');
+            setMyTickets(tickets);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const submitTicket = async () => {
+        if (!form.title.trim() || !form.description.trim() || !form.business_impact.trim()) {
+            emitMockAction('Ticket not submitted', 'Please complete title, description, and business impact before submit.', 'warning');
             return;
         }
-        emitMockAction('Ticket submitted', 'Mock confirmation email and SLA target shared.', 'success');
-        setForm((prev) => ({ ...prev, description: '', business_impact: '' }));
+
+        if (!customerId) {
+            emitMockAction('Error', 'No customer account found to submit ticket.', 'error');
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        // Map form issue type to backend enum ticket_type
+        let mappedType = "enhancement";
+        if (form.issue_type === "Bug") mappedType = "bug";
+        if (form.issue_type === "Access Issue") mappedType = "access";
+        if (form.issue_type === "Performance Issue") mappedType = "performance";
+        if (form.issue_type === "Billing/Account") mappedType = "billing";
+
+        try {
+            await fetchJson('/api/tickets/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    title: form.title,
+                    description: form.description,
+                    ticket_type: mappedType,
+                    source_channel: "portal",
+                    affected_product_area: form.product_area,
+                    business_impact: form.business_impact
+                })
+            });
+            emitMockAction('Ticket submitted', 'Ticket was successfully created via the CSAgent API.', 'success');
+            setForm((prev) => ({ ...prev, title: '', description: '', business_impact: '' }));
+            fetchMyTickets();
+        } catch (err) {
+            console.error(err);
+            emitMockAction('Submit failed', 'Failed to create ticket: ' + err.message, 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     useEffect(() => {
         fetchJson('/api/features/customer-portal')
             .then((data) => setPortalData(data))
             .catch((err) => console.error(err));
+
+        // Fetch a mock customer to act as the current user
+        fetchJson('/api/customers/')
+            .then((customers) => {
+                if (customers.length > 0) {
+                    setCustomerId(customers[0].customer_id);
+                }
+            })
+            .catch(err => console.error(err));
+
+        fetchMyTickets();
     }, []);
 
     if (!portalData) return null;
@@ -51,6 +111,16 @@ const CustomerPortal = () => {
 
             <div style={{ marginTop: '14px', border: '1px solid var(--neutral-7)', borderRadius: 'var(--radius-md)', padding: '12px' }}>
                 <h4 className="type-h4" style={{ marginBottom: '10px' }}>Submit New Ticket</h4>
+                <div className="layout-form-field" style={{ marginBottom: '10px' }}>
+                    <label className="layout-form-label">Issue Title</label>
+                    <input
+                        type="text"
+                        className="input-demo"
+                        placeholder="Brief summary of the issue"
+                        value={form.title}
+                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    />
+                </div>
                 <div className="layout-form-grid">
                     <div className="layout-form-field">
                         <label className="layout-form-label">Product Area</label>
@@ -86,7 +156,9 @@ const CustomerPortal = () => {
                     />
                 </div>
                 <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
-                    <button className="btn btn-sm btn-primary" disabled={!acknowledged} onClick={submitTicket}>Submit Ticket</button>
+                    <button className="btn btn-sm btn-primary" disabled={!acknowledged || isSubmitting} onClick={submitTicket}>
+                        {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
+                    </button>
                     <button className="btn btn-sm btn-ghost" onClick={() => emitMockAction('Attachment flow opened', 'Mock file upload dialog prepared.')}>Attach Evidence</button>
                 </div>
             </div>
@@ -94,15 +166,17 @@ const CustomerPortal = () => {
             <div style={{ marginTop: '14px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
                 <div className="layout-card">
                     <div className="layout-card-title">My Open Tickets</div>
-                    <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {portalData.tickets.map((ticket) => (
-                            <div key={ticket.id} style={{ border: '1px solid var(--neutral-7)', borderRadius: 'var(--radius-sm)', padding: '8px' }}>
+                    <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                        {myTickets.length === 0 ? (
+                            <div style={{ fontSize: '11px', color: 'var(--neutral-4)' }}>No tickets found.</div>
+                        ) : myTickets.map((ticket) => (
+                            <div key={ticket.ticket_id} style={{ border: '1px solid var(--neutral-7)', borderRadius: 'var(--radius-sm)', padding: '8px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-                                    <strong style={{ fontSize: '11px', color: 'var(--primary)' }}>{ticket.id}</strong>
+                                    <strong style={{ fontSize: '11px', color: 'var(--primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }}>{ticket.title}</strong>
                                     <span className="badge badge-primary">{ticket.status}</span>
                                 </div>
-                                <div style={{ fontSize: '10px', color: 'var(--neutral-2)' }}>{ticket.summary}</div>
-                                <div style={{ fontSize: '10px', color: 'var(--neutral-4)' }}>SLA target: {ticket.sla_target}</div>
+                                <div style={{ fontSize: '10px', color: 'var(--neutral-2)' }}>Priority: {ticket.priority} | Type: {ticket.ticket_type}</div>
+                                <div style={{ fontSize: '10px', color: 'var(--neutral-4)' }}>Created: {new Date(ticket.created_at).toLocaleString()}</div>
                             </div>
                         ))}
                     </div>

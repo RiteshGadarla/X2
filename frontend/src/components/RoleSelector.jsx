@@ -1,57 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../state/auth-context';
 
-const ROLE_DEFAULT_ROUTES = {
-    SUPPORT_LEAD:        '/tickets',
-    SUPPORT_MANAGER:     '/sentiment',
-    VP_CUSTOMER_SUCCESS: '/exec',
-    LEGAL_COMPLIANCE:    '/legal',
-    ADMIN_OPS:           '/integrations',
-    CUSTOMER:            '/portal',
-};
 
 const WALLPAPER = 'linear-gradient(135deg, #060314 0%, #0E0828 35%, #140530 60%, #0A1020 100%)';
-
-// Role-specific taskbar icon sets
-const ROLE_ICONS = {
-    SUPPORT_LEAD: [
-        { label: 'Queues', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
-        { label: 'Tickets', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
-        { label: 'SLA', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
-        { label: 'KB Draft', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> },
-    ],
-    SUPPORT_MANAGER: [
-        { label: 'All Queues', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> },
-        { label: 'HIL Approvals', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
-        { label: 'CSAT', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> },
-        { label: 'KB Publish', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> },
-    ],
-    VP_CUSTOMER_SUCCESS: [
-        { label: 'Exec Dashboard', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
-        { label: 'SLA Exceptions', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
-        { label: 'VIP Override', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
-        { label: 'Escalation', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="17 11 21 7 17 3"/><line x1="21" y1="7" x2="9" y2="7"/><polyline points="7 21 3 17 7 13"/><line x1="15" y1="17" x2="3" y2="17"/></svg> },
-    ],
-    LEGAL_COMPLIANCE: [
-        { label: 'Legal Queue', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
-        { label: 'Compliance', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="11" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> },
-        { label: 'Comms Gate', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
-        { label: 'Audit Log', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg> },
-    ],
-    ADMIN_OPS: [
-        { label: 'Integrations', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> },
-        { label: 'Channel Health', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
-        { label: 'Diagnostics', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
-        { label: 'Config', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> },
-    ],
-    CUSTOMER: [
-        { label: 'Submit Ticket', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> },
-        { label: 'Track Status', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> },
-        { label: 'SLA View', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
-        { label: 'Human Support', svg: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
-    ],
-};
 
 const ROLE_COLORS = {
     SUPPORT_LEAD:       '#6B8EF0',
@@ -62,6 +13,7 @@ const ROLE_COLORS = {
     CUSTOMER:           '#CF008B',
 };
 
+/* ── Ubuntu-style clock ── */
 const UbuntuClock = () => {
     const [now, setNow] = useState(new Date());
     useEffect(() => {
@@ -78,48 +30,233 @@ const UbuntuClock = () => {
     );
 };
 
-const Topbar = () => {
+/* ── Ubuntu top bar ── */
+const Topbar = () => (
+    <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '30px',
+        background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(0,0,0,0.08)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 14px', zIndex: 10, userSelect: 'none',
+    }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" fill="#5929d0" />
+                <circle cx="12" cy="12" r="5" fill="#fff" opacity="0.25" />
+                <circle cx="12" cy="7"   r="2" fill="#fff" opacity="0.8" />
+                <circle cx="16.5" cy="14.5" r="2" fill="#fff" opacity="0.8" />
+                <circle cx="7.5"  cy="14.5" r="2" fill="#fff" opacity="0.8" />
+            </svg>
+            <span style={{ color: 'rgba(0,0,0,0.72)', fontSize: '11px', fontWeight: 600 }}>Activities</span>
+        </div>
+
+        <UbuntuClock />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(0,0,0,0.55)' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M1 6.5C5.5 2 18.5 2 23 6.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <path d="M4.5 10C7.5 7 16.5 7 19.5 10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <path d="M8 13.5C9.5 12 14.5 12 16 13.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <circle cx="12" cy="17" r="1.5" fill="currentColor"/>
+            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M12 2v6"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/>
+            </svg>
+        </div>
+    </div>
+);
+
+/* ── Dock app icons ── */
+const WordIcon = () => (
+    <svg viewBox="0 0 44 44" width="44" height="44" xmlns="http://www.w3.org/2000/svg">
+        <rect width="44" height="44" rx="10" fill="#185ABD"/>
+        <path d="M9 13h5l3 12 3-10 3 10 3-12h5l-5.5 18H20l-3-10-3 10h-4.5z" fill="white"/>
+    </svg>
+);
+
+const PPTIcon = () => (
+    <svg viewBox="0 0 44 44" width="44" height="44" xmlns="http://www.w3.org/2000/svg">
+        <rect width="44" height="44" rx="10" fill="#C43E1C"/>
+        <rect x="9" y="10" width="16" height="24" rx="2" fill="white" opacity="0.15"/>
+        <rect x="11" y="12" width="12" height="2" rx="1" fill="white" opacity="0.7"/>
+        <circle cx="24" cy="21" r="7" fill="white" opacity="0.9"/>
+        <circle cx="24" cy="21" r="4" fill="#C43E1C"/>
+        <rect x="9" y="13" width="26" height="14" rx="2" fill="white" opacity="0.12"/>
+        <text x="22" y="28" textAnchor="middle" fill="white" fontSize="20" fontWeight="900" fontFamily="Arial, sans-serif">P</text>
+    </svg>
+);
+
+const ExcelIcon = () => (
+    <svg viewBox="0 0 44 44" width="44" height="44" xmlns="http://www.w3.org/2000/svg">
+        <rect width="44" height="44" rx="10" fill="#107C41"/>
+        <path d="M13 13l5.5 9-5.5 9h4l3.5-6 3.5 6h4L22.5 22 28 13h-4l-3 5.5-3-5.5z" fill="white"/>
+    </svg>
+);
+
+const AppDockIcon = () => (
+    <svg viewBox="0 0 44 44" width="44" height="44" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="appDockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#5929d0"/>
+                <stop offset="100%" stopColor="#A855F7"/>
+            </linearGradient>
+        </defs>
+        <rect width="44" height="44" rx="10" fill="url(#appDockGrad)"/>
+        <path d="M22 8L13 13v8c0 6 4 11 9 13 5-2 9-7 9-13v-8z" fill="white" opacity="0.9"/>
+        <path d="M22 14L17 17v5c0 3.5 2.2 6.5 5 7.5 2.8-1 5-4 5-7.5v-5z" fill="#5929d0" opacity="0.6"/>
+    </svg>
+);
+
+/* ── Ubuntu Dock ── */
+const UbuntuDock = ({ onAppClick }) => {
+    const [hovered, setHovered] = useState(null);
+    const [bouncing, setBouncing] = useState(null);
+
+    const launchOffice = (label, url) => {
+        setBouncing(label);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => setBouncing(null), 700);
+    };
+
+    const handleAppClick = () => {
+        setBouncing('aegis');
+        setTimeout(() => {
+            setBouncing(null);
+            onAppClick?.();
+        }, 500);
+    };
+
+    const tooltipStyle = (side = 'right') => ({
+        position: 'absolute',
+        left: side === 'right' ? 'calc(100% + 12px)' : undefined,
+        right: side === 'left' ? 'calc(100% + 12px)' : undefined,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: 'rgba(0,0,0,0.78)',
+        color: '#fff',
+        padding: '4px 10px',
+        borderRadius: '6px',
+        fontSize: '11px',
+        fontWeight: 500,
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        zIndex: 100,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+    });
+
+    const dockBtnStyle = (label) => ({
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '4px',
+        borderRadius: '10px',
+        display: 'block',
+        transition: 'transform 0.18s',
+        transform: bouncing === label
+            ? 'translateY(-10px)'
+            : hovered === label
+                ? 'scale(1.14)'
+                : 'scale(1)',
+    });
+
+    const officeApps = [
+        { label: 'Word',        icon: <WordIcon />, url: 'https://www.microsoft365.com/launch/word' },
+        { label: 'PowerPoint',  icon: <PPTIcon />,  url: 'https://www.microsoft365.com/launch/powerpoint' },
+        { label: 'Excel',       icon: <ExcelIcon />, url: 'https://www.microsoft365.com/launch/excel' },
+    ];
+
     return (
         <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '30px',
-            background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid rgba(0,0,0,0.08)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '0 14px', zIndex: 10, userSelect: 'none',
+            position: 'absolute',
+            left: '14px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 15,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(22px)',
+            WebkitBackdropFilter: 'blur(22px)',
+            borderRadius: '20px',
+            padding: '12px 8px',
+            border: '1px solid rgba(255,255,255,0.13)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
         }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" fill="#5929d0" />
-                    <circle cx="12" cy="12" r="5" fill="#fff" opacity="0.25" />
-                    <circle cx="12" cy="7"   r="2" fill="#fff" opacity="0.8" />
-                    <circle cx="16.5" cy="14.5" r="2" fill="#fff" opacity="0.8" />
-                    <circle cx="7.5"  cy="14.5" r="2" fill="#fff" opacity="0.8" />
+            <style>{`
+                @keyframes dockBounce {
+                    0%   { transform: translateY(0); }
+                    30%  { transform: translateY(-12px); }
+                    60%  { transform: translateY(-4px); }
+                    100% { transform: translateY(0); }
+                }
+            `}</style>
+
+            {/* Ubuntu logo */}
+            <div style={{ padding: '4px' }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="11" fill="#E95420"/>
+                    <circle cx="12" cy="12" r="5"  fill="#fff" opacity="0.22"/>
+                    <circle cx="12" cy="5.5"  r="2.4" fill="#fff" opacity="0.88"/>
+                    <circle cx="17.8" cy="15.5" r="2.4" fill="#fff" opacity="0.88"/>
+                    <circle cx="6.2"  cy="15.5" r="2.4" fill="#fff" opacity="0.88"/>
                 </svg>
-                <span style={{ color: 'rgba(0,0,0,0.72)', fontSize: '11px', fontWeight: 600 }}>Activities</span>
             </div>
 
-            <UbuntuClock />
+            <div style={{ width: '30px', height: '1px', background: 'rgba(255,255,255,0.18)', margin: '2px 0' }} />
 
-            {/* Right: system tray */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(0,0,0,0.55)' }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <path d="M1 6.5C5.5 2 18.5 2 23 6.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                    <path d="M4.5 10C7.5 7 16.5 7 19.5 10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                    <path d="M8 13.5C9.5 12 14.5 12 16 13.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                    <circle cx="12" cy="17" r="1.5" fill="currentColor"/>
-                </svg>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                </svg>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M12 2v6"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/>
-                </svg>
+            {/* Office apps */}
+            {officeApps.map((app) => (
+                <div key={app.label} style={{ position: 'relative' }}>
+                    <button
+                        style={dockBtnStyle(app.label)}
+                        onMouseEnter={() => setHovered(app.label)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => launchOffice(app.label, app.url)}
+                        title={app.label}
+                    >
+                        {app.icon}
+                    </button>
+                    {hovered === app.label && (
+                        <div style={tooltipStyle('right')}>{app.label}</div>
+                    )}
+                </div>
+            ))}
+
+            <div style={{ width: '30px', height: '1px', background: 'rgba(255,255,255,0.18)', margin: '2px 0' }} />
+
+            {/* aegis.ai app icon */}
+            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <button
+                    style={dockBtnStyle('aegis')}
+                    onMouseEnter={() => setHovered('aegis')}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={handleAppClick}
+                    title="aegis.ai — Open Customer Portal"
+                >
+                    <AppDockIcon />
+                </button>
+                {/* Running indicator dot */}
+                <div style={{
+                    width: '5px', height: '5px',
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.75)',
+                    marginTop: '2px',
+                }} />
+                {hovered === 'aegis' && (
+                    <div style={tooltipStyle('right')}>aegis.ai</div>
+                )}
             </div>
         </div>
     );
 };
 
+/* ── Login window ── */
 const LoginWindow = ({ roles, onLogin, loading, error, selectedId, setSelectedId }) => {
     const [dragging, setDragging] = useState(false);
     const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -170,7 +307,6 @@ const LoginWindow = ({ roles, onLogin, loading, error, selectedId, setSelectedId
             </div>
 
             <div style={{ padding: '28px 28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px' }}>
-                {/* Avatar — color transitions with role */}
                 <div style={{
                     width: '64px', height: '64px', borderRadius: '50%',
                     background: `linear-gradient(135deg, ${accentColor}, ${accentColor}aa)`,
@@ -230,15 +366,15 @@ const LoginWindow = ({ roles, onLogin, loading, error, selectedId, setSelectedId
     );
 };
 
+/* ── Main RoleSelector page (Ubuntu desktop) ── */
 const RoleSelector = () => {
     const { rolesList, setRole, rolesLoading, rolesError } = useAuth();
     const [selectedId, setSelectedId] = useState('');
-    const navigate = useNavigate();
 
-    const handleLogin = (roleId) => {
-        setRole(roleId);
-        navigate(ROLE_DEFAULT_ROUTES[roleId] || '/');
-    };
+    const handleLogin = (roleId) => setRole(roleId);
+
+    /* Clicking the dock app icon logs in as CUSTOMER → Customer Portal */
+    const handleDockAppClick = () => setRole('CUSTOMER');
 
     return (
         <div style={{
@@ -252,7 +388,8 @@ const RoleSelector = () => {
                     to   { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
-            {/* Radial colour glows */}
+
+            {/* Background glows */}
             <div style={{
                 position: 'absolute', inset: 0,
                 backgroundImage: 'radial-gradient(ellipse at 15% 55%, rgba(168,85,247,0.30) 0%, transparent 50%), radial-gradient(ellipse at 80% 15%, rgba(207,0,139,0.22) 0%, transparent 45%), radial-gradient(ellipse at 65% 90%, rgba(1,202,184,0.18) 0%, transparent 40%), radial-gradient(ellipse at 50% 40%, rgba(89,41,208,0.15) 0%, transparent 55%)',
@@ -273,23 +410,19 @@ const RoleSelector = () => {
                         <stop offset="100%" stopColor="#6B8EF0"/>
                     </linearGradient>
                 </defs>
-                {/* Wave set 1 */}
                 <path d="M-100,180 C150,80 350,280 600,160 S1000,60 1300,180 S1700,300 2000,180" fill="none" stroke="url(#waveGrad1)" strokeWidth="2"/>
                 <path d="M-100,220 C150,120 350,320 600,200 S1000,100 1300,220 S1700,340 2000,220" fill="none" stroke="url(#waveGrad1)" strokeWidth="1.5"/>
                 <path d="M-100,260 C150,160 350,360 600,240 S1000,140 1300,260 S1700,380 2000,260" fill="none" stroke="url(#waveGrad2)" strokeWidth="1"/>
-                {/* Wave set 2 */}
                 <path d="M-100,420 C200,300 400,520 700,380 S1100,260 1400,420 S1800,540 2100,420" fill="none" stroke="url(#waveGrad2)" strokeWidth="2"/>
                 <path d="M-100,460 C200,340 400,560 700,420 S1100,300 1400,460 S1800,580 2100,460" fill="none" stroke="url(#waveGrad1)" strokeWidth="1.5"/>
-                <path d="M-100,500 C200,380 400,600 700,460 S1100,340 1400,500 S1800,620 2100,500" fill="none" stroke="url(#waveGrad2)" strokeWidth="1"/>
-                {/* Wave set 3 */}
                 <path d="M-100,620 C250,500 450,700 750,560 S1150,440 1500,620 S1900,740 2200,620" fill="none" stroke="url(#waveGrad1)" strokeWidth="2"/>
                 <path d="M-100,660 C250,540 450,740 750,600 S1150,480 1500,660 S1900,780 2200,660" fill="none" stroke="url(#waveGrad2)" strokeWidth="1.5"/>
-                {/* Thin accent waves */}
                 <path d="M-100,80  C300,20  500,160 800,60  S1200,0   1600,80  S2000,160 2300,80"  fill="none" stroke="url(#waveGrad2)" strokeWidth="1" opacity="0.6"/>
                 <path d="M-100,760 C300,680 500,820 800,720 S1200,640 1600,760 S2000,840 2300,760" fill="none" stroke="url(#waveGrad1)" strokeWidth="1" opacity="0.6"/>
             </svg>
 
             <Topbar />
+            <UbuntuDock onAppClick={handleDockAppClick} />
             <LoginWindow
                 roles={rolesList}
                 onLogin={handleLogin}

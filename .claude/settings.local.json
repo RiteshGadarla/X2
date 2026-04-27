@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(python seed.py)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(python -c \"import docx; print\\('python-docx available'\\)\")",
+      "Bash(npm run *)"
     ]
   }
 }

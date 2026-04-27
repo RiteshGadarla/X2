@@ -5,21 +5,21 @@ import HeroDashboard from '../components/HeroDashboard';
 import { fetchJson } from '../api/client';
 import { emitMockAction } from '../utils/mockActionBus';
 const ACTION_CATALOG = {
-    VIEW_TICKETS: { label: 'Monitor live ticket intake and queue state', route: '/tickets' },
-    VIEW_SLA: { label: 'Review SLA risk, breaches, and adherence trends', route: '/sla' },
-    VIEW_SENTIMENT: { label: 'Track angry and at-risk customer sentiment', route: '/sentiment' },
-    VIEW_HIL_STATUS: { label: 'Follow HIL queue checkpoints and aging', route: '/hil' },
-    APPROVE_HIL: { label: 'Approve/modify critical HIL escalations', route: '/hil' },
-    APPROVE_HIL_OVERRIDE: { label: 'Override escalations for executive outcomes', route: '/hil' },
-    DRAFT_KB: { label: 'Draft KB responses from solved incidents', route: '/kb' },
-    PUBLISH_KB: { label: 'Review and publish KB assets safely', route: '/kb' },
-    VIEW_KB: { label: 'Review KB quality and gap indicators', route: '/kb' },
-    VIEW_VOC: { label: 'Analyze VoC trends and feature demand', route: '/voc' },
-    VIEW_EXEC_DASH: { label: 'Track executive customer health rollups', route: '/exec' },
-    VIEW_LEGAL_TICKETS: { label: 'Review legal/compliance flagged tickets', route: '/legal' },
-    MANAGE_LEGAL_CORRESPONDENCE: { label: 'Take legal ownership and decision control', route: '/hil' },
-    MANAGE_INTEGRATIONS: { label: 'Manage channel and system integrations', route: '/integrations' },
-    VIEW_CUSTOMER_PORTAL: { label: 'Submit and track customer-facing tickets', route: '/portal' }
+    VIEW_TICKETS:                { label: 'Monitor live ticket intake and queue state',       route: '/support-lead/tickets' },
+    VIEW_SLA:                    { label: 'Review SLA risk, breaches, and adherence trends',  route: '/support-lead/sla' },
+    VIEW_SENTIMENT:              { label: 'Track angry and at-risk customer sentiment',        route: '/support-manager/sentiment' },
+    VIEW_HIL_STATUS:             { label: 'Follow HIL queue checkpoints and aging',            route: '/support-lead/hil' },
+    APPROVE_HIL:                 { label: 'Approve/modify critical HIL escalations',           route: '/support-manager/hil' },
+    APPROVE_HIL_OVERRIDE:        { label: 'Override escalations for executive outcomes',       route: '/vp/hil' },
+    DRAFT_KB:                    { label: 'Draft KB responses from solved incidents',           route: '/support-lead/kb' },
+    PUBLISH_KB:                  { label: 'Review and publish KB assets safely',               route: '/support-manager/kb' },
+    VIEW_KB:                     { label: 'Review KB quality and gap indicators',              route: '/legal/kb' },
+    VIEW_VOC:                    { label: 'Analyze VoC trends and feature demand',             route: '/vp/voc' },
+    VIEW_EXEC_DASH:              { label: 'Track executive customer health rollups',           route: '/vp/exec' },
+    VIEW_LEGAL_TICKETS:          { label: 'Review legal/compliance flagged tickets',           route: '/legal/queue' },
+    MANAGE_LEGAL_CORRESPONDENCE: { label: 'Take legal ownership and decision control',         route: '/legal/hil' },
+    MANAGE_INTEGRATIONS:         { label: 'Manage channel and system integrations',            route: '/admin/integrations' },
+    VIEW_CUSTOMER_PORTAL:        { label: 'Submit and track customer-facing tickets',          route: '/customer/portal' },
 };
 
 const ROLE_PRIORITIES = {

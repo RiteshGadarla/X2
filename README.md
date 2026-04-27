@@ -76,6 +76,68 @@ cd frontend
 npm run dev
 ```
 
+---
+
+## Docker
+
+### Build Images
+
+**Linux / macOS**
+```bash
+docker build -t backend:latest ./backend
+
+docker build \
+  --build-arg VITE_API_BASE_URL=http://localhost:5000 \
+  -t frontend:latest \
+  ./frontend
+```
+
+**Windows (PowerShell)**
+```powershell
+docker build -t backend:latest ./backend
+
+docker build `
+  --build-arg VITE_API_BASE_URL=http://localhost:5000 `
+  -t frontend:latest `
+  ./frontend
+```
+
+> `VITE_API_BASE_URL` must be passed at build time — Vite bakes it into the static bundle. Replace `localhost` with your server IP or domain when deploying remotely.
+
+### Run Containers
+
+**Linux / macOS**
+```bash
+docker run -d \
+  --name backend \
+  --env-file ./backend/.env \
+  -p 5000:5000 \
+  backend:latest
+
+docker run -d \
+  --name frontend \
+  -p 3000:3000 \
+  frontend:latest
+```
+
+**Windows (PowerShell)**
+```powershell
+docker run -d `
+  --name backend `
+  --env-file ./backend/.env `
+  -p 5000:5000 `
+  backend:latest
+
+docker run -d `
+  --name frontend `
+  -p 3000:3000 `
+  frontend:latest
+```
+
+Once running, the frontend is available at `http://localhost:3000` and the backend API at `http://localhost:5000`.
+
+---
+
 ## Environment Configuration
 
 Backend configuration is loaded from `backend/.env` and validated at startup by `backend/config.py`. Required keys are documented in `backend/.env.example`: `APP_ENV`, `BACKEND_HOST`, `BACKEND_PORT`, `DATABASE_URL`, `CORS_ORIGINS`, and `API_SECRET_KEY`. `BACKEND_RELOAD` is optional and should stay `false` outside local development.

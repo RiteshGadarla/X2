@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import sys
@@ -27,20 +27,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(rbac.router, prefix="/api/rbac", tags=["RBAC"])
-app.include_router(metrics.router, prefix="/api/metrics", tags=["Metrics"])
-app.include_router(features.router, prefix="/api/features", tags=["Features"])
-app.include_router(tickets.router, prefix="/api/tickets", tags=["Tickets"])
-app.include_router(customers.router, prefix="/api/customers", tags=["Customers"])
-app.include_router(kb_articles.router, prefix="/api/kb_articles", tags=["KB Articles"])
-app.include_router(incidents.router, prefix="/api/incidents", tags=["Incidents"])
-app.include_router(hil_reviews.router, prefix="/api/hil", tags=["HIL Reviews"])
-app.include_router(communications.router, prefix="/api/communications", tags=["Communications"])
-app.include_router(seed.router, prefix="/api/seed", tags=["Seed"])
+# Create a main router with the desired prefix
+main_router = APIRouter(prefix="/luka-aegis")
 
-@app.get("/api/health")
+main_router.include_router(rbac.router, prefix="/api/rbac", tags=["RBAC"])
+main_router.include_router(metrics.router, prefix="/api/metrics", tags=["Metrics"])
+main_router.include_router(features.router, prefix="/api/features", tags=["Features"])
+main_router.include_router(tickets.router, prefix="/api/tickets", tags=["Tickets"])
+main_router.include_router(customers.router, prefix="/api/customers", tags=["Customers"])
+main_router.include_router(kb_articles.router, prefix="/api/kb_articles", tags=["KB Articles"])
+main_router.include_router(incidents.router, prefix="/api/incidents", tags=["Incidents"])
+main_router.include_router(hil_reviews.router, prefix="/api/hil", tags=["HIL Reviews"])
+main_router.include_router(communications.router, prefix="/api/communications", tags=["Communications"])
+main_router.include_router(seed.router, prefix="/api/seed", tags=["Seed"])
+
+@main_router.get("/api/health")
 def health_check():
     return {"status": "ok", "environment": settings.app_env}
+
+# Include the main router into the app
+app.include_router(main_router)
 
 
 if __name__ == "__main__":

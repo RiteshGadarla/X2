@@ -1,18 +1,8 @@
-const requiredEnv = {
-    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-    VITE_APP_ENV: import.meta.env.VITE_APP_ENV,
-};
-
-const missingKeys = Object.entries(requiredEnv)
-    .filter(([, value]) => typeof value !== 'string' || value.trim() === '')
-    .map(([key]) => key);
-
-if (missingKeys.length > 0) {
-    throw new Error(`Missing required frontend environment variables: ${missingKeys.join(', ')}`);
-}
+const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://134.33.132.134/Luka-aegis';
+const appEnv = import.meta.env.VITE_APP_ENV || 'production';
 
 export const env = {
-    apiBaseUrl: requiredEnv.VITE_API_BASE_URL.replace(/\/+$/, ''),
-    appEnv: requiredEnv.VITE_APP_ENV,
+    apiBaseUrl: apiBaseUrl.replace(/\/+$/, ''),
+    appEnv: appEnv,
     enableMockActions: import.meta.env.VITE_ENABLE_MOCK_ACTIONS === 'true',
 };

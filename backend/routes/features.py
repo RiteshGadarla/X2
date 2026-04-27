@@ -8,7 +8,7 @@ from models import (
     ChannelVolume, LegalOverview, CustomerPortal, ActivityLog,
     TicketUpdate,
 )
-from mock_data import enrich_ticket_sort_fields
+from services.ticket_utils import enrich_ticket_sort_fields
 
 router = APIRouter()
 
@@ -70,6 +70,13 @@ def get_hil_queue(db: Session = Depends(get_db)):
 @router.get("/kb")
 def get_kb_stats(db: Session = Depends(get_db)):
     kb = db.query(KBStats).first()
+    if not kb:
+        return {
+            "usage_rate": "0%",
+            "success_rate": "0%",
+            "drafts_pending": 0,
+            "top_gap": "None",
+        }
     return {
         "usage_rate": kb.usage_rate,
         "success_rate": kb.success_rate,
@@ -81,6 +88,12 @@ def get_kb_stats(db: Session = Depends(get_db)):
 @router.get("/voc")
 def get_voc(db: Session = Depends(get_db)):
     voc = db.query(VOC).first()
+    if not voc:
+        return {
+            "csat_trend": "0/5",
+            "at_risk_count": 0,
+            "feature_requests": [],
+        }
     return {
         "csat_trend": voc.csat_trend,
         "at_risk_count": voc.at_risk_count,
@@ -91,6 +104,11 @@ def get_voc(db: Session = Depends(get_db)):
 @router.get("/channels")
 def get_channels(db: Session = Depends(get_db)):
     cv = db.query(ChannelVolume).first()
+    if not cv:
+        return {
+            "email": 0, "chat": 0, "slack": 0,
+            "portal": 0, "whatsapp": 0, "peak_hour": "N/A",
+        }
     return {
         "email": cv.email, "chat": cv.chat, "slack": cv.slack,
         "portal": cv.portal, "whatsapp": cv.whatsapp, "peak_hour": cv.peak_hour,
@@ -100,6 +118,15 @@ def get_channels(db: Session = Depends(get_db)):
 @router.get("/legal-overview")
 def get_legal_overview(db: Session = Depends(get_db)):
     lo = db.query(LegalOverview).first()
+    if not lo:
+        return {
+            "active_cases": 0,
+            "pending_approvals": 0,
+            "blocked_comms": 0,
+            "avg_hil_turnaround": "0h",
+            "weekly_flags": [],
+            "case_breakdown": [],
+        }
     return {
         "active_cases": lo.active_cases,
         "pending_approvals": lo.pending_approvals,
@@ -113,6 +140,13 @@ def get_legal_overview(db: Session = Depends(get_db)):
 @router.get("/customer-portal")
 def get_customer_portal(db: Session = Depends(get_db)):
     cp = db.query(CustomerPortal).first()
+    if not cp:
+        return {
+            "product_areas": [],
+            "issue_types": [],
+            "tickets": [],
+            "linked_kb": [],
+        }
     return {
         "product_areas": cp.product_areas,
         "issue_types": cp.issue_types,

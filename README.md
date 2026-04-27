@@ -31,7 +31,6 @@ cd backend
 .\venv\Scripts\activate
 python seed.py
 ```
-> **Note**: You can also seed/wipe the database dynamically while the backend is running by making a `POST` or `GET` request to `http://localhost:5000/Luka-aegis-fe/api/seed/32`.
 
 **3. Start the Application**
 You will need two terminal windows to run both servers concurrently.
@@ -62,6 +61,7 @@ docker build -t backend:latest ./backend
 docker run -d `
   --name backend `
   -p 5000:5000 `
+  --env-file .env `
   backend:latest
 ```
 
@@ -82,7 +82,7 @@ docker run -d `
 
 > Note: The frontend container internally serves on port 5000; we map it to host port 5001 to avoid conflict with the backend.
 
-> Note: The frontend container exposes port 5000 internally. We map it to `5001` on the host to avoid port conflicts with the backend. Once running, the frontend is available at `http://localhost:5001/Luka-aegis-fe/` and the backend API at `http://localhost:5000/Luka-aegis-fe/`.
+> Note: The frontend container exposes port 5000 internally. We map it to `5001` on the host to avoid port conflicts with the backend. Once running, the frontend is available at `http://localhost:5001/luka-aegis-fe/` and the backend API at `http://localhost:5000/luka-aegis/`.
 
 ---
 

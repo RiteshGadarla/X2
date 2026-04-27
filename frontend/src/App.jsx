@@ -5,7 +5,7 @@ import './index.css';
 
 function App() {
     return (
-        <Router basename="/Luka-aegis-fe">
+        <Router basename="/luka-aegis-fe">
             <AuthProvider>
                 <Desktop />
             </AuthProvider>

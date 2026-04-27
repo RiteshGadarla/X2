@@ -1,11 +1,14 @@
 -- =============================================================================
--- X2 Dashboard – PostgreSQL DDL
+-- X2 Dashboard – PostgreSQL DDL (reset schema)
 -- Legacy RBAC/mock tables + CSAgent production schema (BRD-021)
+
+-- Reset the public schema to ensure a clean slate before recreating tables
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+SET search_path TO public;
 -- =============================================================================
 
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
--- ─── Legacy RBAC / mock tables ───────────────────────────────────────────────
+-- Legacy RBAC / mock tables ───────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS roles (
     id      VARCHAR(50)  PRIMARY KEY,
@@ -154,21 +157,6 @@ CREATE TABLE IF NOT EXISTS cs_sla_configs (
     CONSTRAINT uq_sla_tier_priority UNIQUE (customer_tier, priority)
 );
 
--- Default SLA seed values (overridable via API)
-INSERT INTO cs_sla_configs (customer_tier, priority, first_response_minutes, resolution_hours) VALUES
-  ('enterprise', 'P1',  15,    4),
-  ('enterprise', 'P2',  60,    8),
-  ('enterprise', 'P3',  240,   24),
-  ('enterprise', 'P4',  480,   72),
-  ('business',   'P1',  15,    8),
-  ('business',   'P2',  60,    24),
-  ('business',   'P3',  240,   48),
-  ('business',   'P4',  480,   120),
-  ('standard',   'P1',  15,    24),
-  ('standard',   'P2',  60,    48),
-  ('standard',   'P3',  240,   96),
-  ('standard',   'P4',  480,   168)
-ON CONFLICT ON CONSTRAINT uq_sla_tier_priority DO NOTHING;
 
 -- ─── 4. Incidents (synced from SRE Agent / ITSM) ─────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_incidents (

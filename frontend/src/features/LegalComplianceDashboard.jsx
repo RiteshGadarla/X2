@@ -20,9 +20,9 @@ const LegalComplianceDashboard = () => {
 
     return (
         <div className="card-demo" style={{ marginTop: '20px', borderLeft: '4px solid var(--error)' }}>
-            <div className="card-demo-header">
-                <h3 className="type-h4">Legal and Compliance Command Board</h3>
-                <span className="badge badge-error">{overview.pending_approvals} Pending Reviews</span>
+            <div className="card-demo-header" style={{ marginBottom: '12px' }}>
+                <h3 className="type-h4" style={{ fontWeight: 700, fontSize: '18px' }}>Legal and Compliance Command Board</h3>
+                <span className="badge badge-error" style={{ padding: '4px 12px' }}>{overview.pending_approvals} Pending Reviews</span>
             </div>
             <p className="type-body" style={{ color: 'var(--neutral-4)' }}>
                 Central queue for legal correspondence approvals, compliance risks, and policy-safe customer communication.
@@ -38,8 +38,8 @@ const LegalComplianceDashboard = () => {
                     <div className="type-h2" style={{ color: 'var(--warning)' }}>{overview.blocked_comms}</div>
                 </div>
                 <div className="layout-card">
-                    <div className="layout-card-title">Avg HIL Turnaround</div>
-                    <div className="type-h2">{overview.avg_hil_turnaround}</div>
+                    <div className="layout-card-title">Avg Review Turnaround</div>
+                    <div className="type-h2">{overview.avg_review_turnaround}</div>
                 </div>
             </div>
 
@@ -56,9 +56,9 @@ const LegalComplianceDashboard = () => {
                 </div>
             </div>
 
-            <div style={{ marginTop: '14px', display: 'flex', gap: '8px' }}>
-                <button className="btn btn-sm btn-primary" onClick={() => emitMockAction('Legal response approved', 'Mock approval recorded for customer communication.', 'success')}>Approve Legal Response</button>
-                <button className="btn btn-sm btn-ghost" onClick={() => emitMockAction('Policy revision requested', 'Mock compliance update routed to policy owners.', 'warning')}>Request Policy Revision</button>
+            <div style={{ marginTop: '48px', display: 'flex', gap: '12px' }}>
+                <button className="btn btn-sm btn-primary" style={{ paddingLeft: '20px', paddingRight: '20px' }} onClick={() => emitMockAction('Legal response approved', 'Mock approval recorded for customer communication.', 'success')}>Approve Legal Response</button>
+                <button className="btn btn-sm btn-ghost" style={{ paddingLeft: '20px', paddingRight: '20px' }} onClick={() => emitMockAction('Policy revision requested', 'Mock compliance update routed to policy owners.', 'warning')}>Request Policy Revision</button>
             </div>
         </div>
     );

@@ -40,9 +40,9 @@ export const BRAND_PALETTES = {
 
 export const ROLE_PILLARS = {
   SUPPORT_LEAD: ['Live Intake', 'SLA Focus', 'KB Drafting'],
-  SUPPORT_MANAGER: ['Sentiment Feed', 'HIL Review', 'VoC Insights'],
+  SUPPORT_MANAGER: ['Sentiment Feed', 'Review', 'VoC Insights'],
   VP_CUSTOMER_SUCCESS: ['Executive View', 'VoC Panel', 'Escalation Overrides'],
-  LEGAL_COMPLIANCE: ['Legal HIL Queue', 'Compliance Flags', 'Correspondence Governance'],
+  LEGAL_COMPLIANCE: ['Legal Review Queue', 'Compliance Flags', 'Correspondence Governance'],
   ADMIN_OPS: ['Channel Volume', 'Integration Monitoring', 'Operational Availability'],
   CUSTOMER: ['Customer Portal', 'AI Disclosure + Human Escalation', 'Linked KB Guidance']
 };

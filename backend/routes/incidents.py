@@ -29,3 +29,20 @@ def update_incident(incident_id: UUID, update_data: incident_schemas.IncidentUpd
         return incident_service.update_incident(db, incident_id, update_data)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+import models
+
+@router.put("/{incident_id}", response_model=incident_schemas.IncidentResponse)
+def full_update_incident(incident_id: UUID, update_data: incident_schemas.IncidentUpdate, db: Session = Depends(get_db)):
+    try:
+        return incident_service.update_incident(db, incident_id, update_data)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.delete("/{incident_id}")
+def delete_incident(incident_id: UUID, db: Session = Depends(get_db)):
+    incident = db.query(models.CSIncident).filter(models.CSIncident.incident_id == incident_id).first()
+    if not incident: raise HTTPException(status_code=404, detail="Incident not found")
+    db.delete(incident)
+    db.commit()
+    return {"status": "deleted"}

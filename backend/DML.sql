@@ -1,6 +1,7 @@
 -- =============================================================================
 -- X2 Dashboard – PostgreSQL DML (Data Manipulation Language)
 -- Robust seeding script with idempotency (ON CONFLICT)
+-- Updated for standardized Review terminology and new production tables
 -- =============================================================================
 
 -- ─── 1. Roles ───────────────────────────────────────────────────────────────
@@ -10,7 +11,7 @@ INSERT INTO roles (id, name) VALUES
 ('VP_CUSTOMER_SUCCESS', 'VP Customer Success'),
 ('LEGAL_COMPLIANCE', 'Legal / Compliance'),
 ('ADMIN_OPS', 'Admin / Ops'),
-('CUSTOMER', 'Customer (External Portal)')
+('CUSTOMER', 'Customer')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 -- ─── 2. Role Permissions ─────────────────────────────────────────────────────
@@ -60,24 +61,11 @@ INSERT INTO tickets (id, customer, tier, summary, time_remaining, status, priori
 ('TCK-9901', 'Acme Corp', 'Enterprise', 'Payment Gateway Timeout in EU cluster', '1h 12m', 'In Progress', 'P1', 'Angry'),
 ('TCK-9902', 'Globex', 'Business', 'How to export CSV with historical data', '14h', 'Routed', 'P3', 'Neutral'),
 ('TCK-9903', 'Initech', 'Standard', 'Login API returns HTTP 500 on MFA fallback', '4h 30m', 'Ack', 'P2', 'Frustrated'),
-('LGL-104', 'Soylent', 'Enterprise', 'GDPR data deletion and audit evidence request', '2d', 'HIL Legal', 'P1', 'Neutral'),
+('LGL-104', 'Soylent', 'Enterprise', 'GDPR data deletion and audit evidence request', '2d', 'Review Legal', 'P1', 'Neutral'),
 ('TCK-9904', 'Hooli', 'Enterprise', 'Production latency spikes after rollout', '22m', 'In Progress', 'P1', 'Angry'),
 ('TCK-9905', 'Vehement Capital', 'Business', 'Unable to add new SSO metadata certificate', '2h 05m', 'In Triage', 'P2', 'Frustrated'),
 ('TCK-9906', 'Massive Dynamic', 'Enterprise', 'Invoice PDF contains wrong tax code', '6h', 'Routed', 'P2', 'Neutral'),
-('TCK-9907', 'Umbrella', 'Standard', 'Webhook retries do not trigger after timeout', '16h', 'Ack', 'P3', 'Neutral'),
-('TCK-9908', 'Wonka Industries', 'Business', 'Bulk import fails at row 1200 with parser error', '8h 20m', 'In Progress', 'P2', 'Frustrated'),
-('TCK-9909', 'Stark Industries', 'Enterprise', 'Role sync missing permissions from SCIM', '1d 4h', 'Pending Customer', 'P3', 'Neutral'),
-('TCK-9910', 'Wayne Enterprises', 'Enterprise', 'Fraud alert rules not applied to new accounts', '38m', 'In Progress', 'P1', 'Angry'),
-('TCK-9911', 'Tyrell Corp', 'Business', 'SLA report email missing weekly attachment', '5h 10m', 'In Triage', 'P2', 'Neutral'),
-('TCK-9912', 'Oceanic', 'Standard', 'Account lockout policy unclear to end users', '18h', 'Resolution Proposed', 'P4', 'Neutral'),
-('TCK-9913', 'Cyberdyne', 'Enterprise', 'Critical batch job delayed and data stale', '52m', 'Routed', 'P1', 'Frustrated'),
-('TCK-9914', 'Nakatomi', 'Business', 'MFA SMS delivery failure for APAC users', '3h', 'In Progress', 'P2', 'Frustrated'),
-('TCK-9915', 'Pied Piper', 'Standard', 'API docs mismatch actual request schema', '20h', 'Ack', 'P3', 'Neutral'),
-('TCK-9916', 'Aperture', 'Enterprise', 'Contracted uptime clause breach dispute', '1h 40m', 'HIL Legal', 'P1', 'Angry'),
-('TCK-9917', 'Monarch', 'Business', 'Channel integration disconnect in Teams bot', '7h', 'In Triage', 'P2', 'Neutral'),
-('TCK-9918', 'Gekko & Co', 'Enterprise', 'Refund commitment requested during outage', '35m', 'HIL Legal', 'P1', 'Angry'),
-('TCK-9919', 'Initrode', 'Standard', 'Portal attachment upload fails over 20MB', '11h', 'Routed', 'P3', 'Neutral'),
-('TCK-9920', 'Oscorp', 'Business', 'Customer portal AI disclosure not shown', '2h 15m', 'In Progress', 'P2', 'Frustrated')
+('TCK-9907', 'Umbrella', 'Standard', 'Webhook retries do not trigger after timeout', '16h', 'Ack', 'P3', 'Neutral')
 ON CONFLICT (id) DO UPDATE SET 
     customer = EXCLUDED.customer,
     tier = EXCLUDED.tier,
@@ -87,16 +75,11 @@ ON CONFLICT (id) DO UPDATE SET
     priority = EXCLUDED.priority,
     sentiment = EXCLUDED.sentiment;
 
--- ─── 5. HIL Queue ────────────────────────────────────────────────────────────
-INSERT INTO hil_queue (id, ticket_id, checkpoint_type, age, customer_tier) VALUES 
-('HIL-301', 'TCK-9901', 'VIP Interaction', '45m', 'Enterprise'),
-('HIL-302', 'TCK-9908', 'Billing Dispute', '2h', 'Business'),
-('HIL-303', 'LGL-104', 'Legal Correspondence', '1d', 'Enterprise'),
-('HIL-304', 'TCK-9910', 'VIP Interaction', '30m', 'Enterprise'),
-('HIL-305', 'TCK-9916', 'Legal Correspondence', '3h 20m', 'Enterprise'),
-('HIL-306', 'TCK-9918', 'Billing Dispute', '1h 05m', 'Enterprise'),
-('HIL-307', 'TCK-9904', 'VIP Interaction', '50m', 'Enterprise'),
-('HIL-308', 'TCK-9914', 'Billing Dispute', '2h 40m', 'Business')
+-- ─── 5. Review Queue (Legacy) ───────────────────────────────────────────────────
+INSERT INTO review_queue (id, ticket_id, checkpoint_type, age, customer_tier) VALUES 
+('REV-301', 'TCK-9901', 'VIP Interaction', '45m', 'Enterprise'),
+('REV-302', 'TCK-9908', 'Billing Dispute', '2h', 'Business'),
+('REV-303', 'LGL-104', 'Legal Correspondence', '1d', 'Enterprise')
 ON CONFLICT (id) DO UPDATE SET
     ticket_id = EXCLUDED.ticket_id,
     checkpoint_type = EXCLUDED.checkpoint_type,
@@ -104,7 +87,6 @@ ON CONFLICT (id) DO UPDATE SET
     customer_tier = EXCLUDED.customer_tier;
 
 -- ─── 6. Singleton / Dashboard Feature Tables ─────────────────────────────────
--- We use id=1 to ensure singleton pattern
 INSERT INTO kb_stats (id, usage_rate, success_rate, drafts_pending, top_gap) 
 VALUES (1, '42%', '89%', 4, 'SSO Azure AD Integration')
 ON CONFLICT (id) DO UPDATE SET
@@ -122,142 +104,89 @@ ON CONFLICT (id) DO UPDATE SET
 
 INSERT INTO channel_volume (id, email, chat, slack, portal, whatsapp, peak_hour) 
 VALUES (1, 450, 320, 115, 200, 50, '14:00 GMT')
-ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    chat = EXCLUDED.chat,
-    slack = EXCLUDED.slack,
-    portal = EXCLUDED.portal,
-    whatsapp = EXCLUDED.whatsapp,
-    peak_hour = EXCLUDED.peak_hour;
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
 
-INSERT INTO legal_overview (id, active_cases, pending_approvals, blocked_comms, avg_hil_turnaround, weekly_flags, case_breakdown) 
-VALUES (1, 11, 6, 3, '3h 20m', '[{"day": "Mon", "flags": 2}, {"day": "Tue", "flags": 1}, {"day": "Wed", "flags": 3}, {"day": "Thu", "flags": 2}, {"day": "Fri", "flags": 2}, {"day": "Sat", "flags": 1}, {"day": "Sun", "flags": 1}]', '[{"name": "Legal", "value": 45, "color": "#DC2626"}, {"name": "Privacy", "value": 30, "color": "#E4902E"}, {"name": "Compliance", "value": 25, "color": "#5929d0"}]')
-ON CONFLICT (id) DO UPDATE SET
-    active_cases = EXCLUDED.active_cases,
-    pending_approvals = EXCLUDED.pending_approvals,
-    blocked_comms = EXCLUDED.blocked_comms,
-    avg_hil_turnaround = EXCLUDED.avg_hil_turnaround,
-    weekly_flags = EXCLUDED.weekly_flags,
-    case_breakdown = EXCLUDED.case_breakdown;
-
-INSERT INTO customer_portal (id, product_areas, issue_types, tickets, linked_kb) 
-VALUES (1, '["Payments", "Authentication", "Reporting", "Integrations"]', '["Bug", "Enhancement Request", "Access Issue", "Performance Issue", "Billing/Account"]', '[{"id": "CUST-2201", "summary": "Export report missing filters", "status": "In Progress", "sla_target": "4h response, 24h resolution"}, {"id": "CUST-2202", "summary": "Unable to reset MFA after device change", "status": "Pending Customer", "sla_target": "1h response, 8h resolution"}, {"id": "CUST-2203", "summary": "Webhook retries delayed", "status": "In Triage", "sla_target": "15m response, 4h resolution"}]', '[{"title": "How to configure report filters in exports", "tag": "Reporting"}, {"title": "MFA recovery and identity verification workflow", "tag": "Authentication"}, {"title": "Webhook retry diagnostics checklist", "tag": "Integrations"}]')
-ON CONFLICT (id) DO UPDATE SET
-    product_areas = EXCLUDED.product_areas,
-    issue_types = EXCLUDED.issue_types,
-    tickets = EXCLUDED.tickets,
-    linked_kb = EXCLUDED.linked_kb;
-
--- ─── 7. Activity Logs ────────────────────────────────────────────────────────
-INSERT INTO activity_logs (id, time, severity, source, message, role_scope) VALUES 
-('LOG-1042', '09:42', 'success', 'SLA Monitor', 'P1 first-response window recovered for Acme Corp.', 'Support'),
-('LOG-1041', '09:36', 'warning', 'HIL Queue', 'VIP checkpoint waiting 45m for manager approval.', 'Manager'),
-('LOG-1040', '09:28', 'info', 'Ticket Intake', '12 new omnichannel tickets normalized and triaged.', 'Support'),
-('LOG-1039', '09:17', 'error', 'Integration', 'Zendesk webhook retry failed on channel sync batch.', 'Admin'),
-('LOG-1038', '09:04', 'info', 'VoC Engine', 'Recurring reporting export theme linked to 8 tickets.', 'Executive'),
-('LOG-1037', '08:52', 'warning', 'Compliance', 'Legal phrase detected in draft customer response.', 'Legal'),
-('LOG-1036', '08:41', 'success', 'Knowledge Base', 'SSO recovery article moved to publication review.', 'Support')
-ON CONFLICT (id) DO UPDATE SET
-    time = EXCLUDED.time,
-    severity = EXCLUDED.severity,
-    source = EXCLUDED.source,
-    message = EXCLUDED.message,
-    role_scope = EXCLUDED.role_scope;
+INSERT INTO legal_overview (id, active_cases, pending_approvals, blocked_comms, avg_review_turnaround, weekly_flags, case_breakdown) 
+VALUES (1, 11, 6, 3, '3h 20m', '[{"day": "Mon", "flags": 2}, {"day": "Tue", "flags": 1}]', '[{"name": "Legal", "value": 45, "color": "#DC2626"}]')
+ON CONFLICT (id) DO UPDATE SET active_cases = EXCLUDED.active_cases;
 
 -- ─── 9. SLA Configurations ───────────────────────────────────────────────────
 INSERT INTO cs_sla_configs (sla_config_id, customer_tier, priority, first_response_minutes, resolution_hours, warning_threshold_pct, critical_threshold_pct, is_active) VALUES
   ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'enterprise', 'P1',  15,    4,   75, 90, true),
   ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'enterprise', 'P2',  60,    8,   75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'enterprise', 'P3',  240,   24,  75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'enterprise', 'P4',  480,   72,  75, 90, true),
   ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380b11', 'business',   'P1',  15,    8,   75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380b12', 'business',   'P2',  60,    24,  75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380b13', 'business',   'P3',  240,   48,  75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380b14', 'business',   'P4',  480,   120, 75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380c11', 'standard',   'P1',  15,    24,  75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380c12', 'standard',   'P2',  60,    48,  75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380c13', 'standard',   'P3',  240,   96,  75, 90, true),
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380c14', 'standard',   'P4',  480,   168, 75, 90, true)
-ON CONFLICT (customer_tier, priority) DO UPDATE SET
-    first_response_minutes = EXCLUDED.first_response_minutes,
-    resolution_hours = EXCLUDED.resolution_hours,
-    warning_threshold_pct = EXCLUDED.warning_threshold_pct,
-    critical_threshold_pct = EXCLUDED.critical_threshold_pct;
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380c11', 'standard',   'P1',  15,    24,  75, 90, true)
+ON CONFLICT (customer_tier, priority) DO NOTHING;
 
--- ─── 10. New CS Users ─────────────────────────────────────────────────────────
+-- ─── 10. CS Users ────────────────────────────────────────────────────────────
 INSERT INTO cs_users (user_id, name, email, role) VALUES 
-('9c4cae89-004d-45fe-b6ba-2ab767ed418c', 'Admin Agent', 'admin@csagent.io', 'admin')
-ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role;
+('9c4cae89-004d-45fe-b6ba-2ab767ed418c', 'Luka Admin', 'admin@csagent.io', 'admin'),
+('b1a2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6', 'Sarah Lead', 'sarah@csagent.io', 'support_lead'),
+('c1d2e3f4-a5b6-47c8-9d0e-1f2a3b4c5d6e', 'Mark Manager', 'mark@csagent.io', 'support_manager')
+ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name;
 
--- ─── 9. New CS Customers ─────────────────────────────────────────────────────
-INSERT INTO cs_customers (customer_id, name, email, account_tier) VALUES 
-('2219823b-e458-44be-bffb-30a2db5b1d02', 'Acme Corp', 'contact@acmecorp.com', 'enterprise'),
-('d4eb5f03-93b2-4b61-b6c4-489155634d24', 'Globex', 'contact@globex.com', 'business'),
-('3399b4e0-4550-4fc9-9790-5b91a3081b42', 'Initech', 'contact@initech.com', 'standard'),
-('8936c523-6524-459b-9e15-f86ec28b30fb', 'Soylent', 'contact@soylent.com', 'enterprise'),
-('0c53d8e7-4733-4a1c-bd8c-1925aea38400', 'Hooli', 'contact@hooli.com', 'enterprise'),
-('bf97340c-d923-4d11-9249-abbf87ded271', 'Vehement Capital', 'contact@vehementcapital.com', 'business'),
-('68988bde-1159-4b8b-aa43-8817caf48416', 'Massive Dynamic', 'contact@massivedynamic.com', 'enterprise'),
-('1ee4dbc3-0350-4562-b45f-7c8bf9fc8589', 'Umbrella', 'contact@umbrella.com', 'standard'),
-('24cd79f8-0811-4de1-90f7-cc541549ffaf', 'Wonka Industries', 'contact@wonkaindustries.com', 'business'),
-('debf58dd-0488-4ac5-81a9-91982846121f', 'Stark Industries', 'contact@starkindustries.com', 'enterprise'),
-('2e12fbf5-667d-4287-be1a-241539890f9b', 'Wayne Enterprises', 'contact@wayneenterprises.com', 'enterprise'),
-('7b446757-3625-45c3-a394-350c356661b8', 'Tyrell Corp', 'contact@tyrellcorp.com', 'business'),
-('67e8c400-57a3-439b-ac32-e0c08727dbf9', 'Oceanic', 'contact@oceanic.com', 'standard'),
-('0f50d9a7-673c-4003-823e-6ad14931dbf9', 'Cyberdyne', 'contact@cyberdyne.com', 'enterprise'),
-('d86a3da2-9eb9-4b96-80cb-0ebdda5bb8b5', 'Nakatomi', 'contact@nakatomi.com', 'business'),
-('9a06c95e-eab8-43de-9e6c-7cc250b78288', 'Pied Piper', 'contact@piedpiper.com', 'standard'),
-('adefc8b6-4437-45ac-be93-308bdc29d835', 'Aperture', 'contact@aperture.com', 'enterprise'),
-('6d0e82aa-8fb0-4556-8743-5753b177da32', 'Monarch', 'contact@monarch.com', 'business'),
-('0643ddc9-c71e-40fa-bfa6-4a91bcc44858', 'Gekko & Co', 'contact@gekko&co.com', 'enterprise'),
-('fd04dedb-8619-4acb-8d7b-18e3e5e6e96f', 'Initrode', 'contact@initrode.com', 'standard'),
-('aca12740-5101-4c2c-a2f4-ba02e119addf', 'Oscorp', 'contact@oscorp.com', 'business')
-ON CONFLICT (email) DO UPDATE SET
-    name = EXCLUDED.name,
-    account_tier = EXCLUDED.account_tier;
+-- ─── 11. CS Customers ────────────────────────────────────────────────────────
+INSERT INTO cs_customers (customer_id, name, email, account_tier, is_vip, risk_score) VALUES 
+('2219823b-e458-44be-bffb-30a2db5b1d02', 'Acme Corp', 'contact@acmecorp.com', 'enterprise', true, 12.5),
+('d4eb5f03-93b2-4b61-b6c4-489155634d24', 'Globex', 'contact@globex.com', 'business', false, 45.0),
+('3399b4e0-4550-4fc9-9790-5b91a3081b42', 'Initech', 'contact@initech.com', 'standard', false, 5.0)
+ON CONFLICT (email) DO UPDATE SET risk_score = EXCLUDED.risk_score;
 
--- ─── 10. New CS Incidents ────────────────────────────────────────────────────
+-- ─── 12. CS Incidents ────────────────────────────────────────────────────────
 INSERT INTO cs_incidents (incident_id, external_incident_id, title, description, status, severity, source_system) VALUES 
 ('b2d5b36f-add8-4689-9352-826fd386c545', 'INC-1001', 'EU Cluster Timeout', 'Major network latency in EU-Central-1', 'resolved', 'major', 'sre_agent')
-ON CONFLICT (external_incident_id) DO UPDATE SET
-    title = EXCLUDED.title,
-    description = EXCLUDED.description,
-    status = EXCLUDED.status,
-    severity = EXCLUDED.severity;
+ON CONFLICT (external_incident_id) DO NOTHING;
 
--- ─── 11. New CS KB Articles ──────────────────────────────────────────────────
-INSERT INTO cs_kb_articles (article_id, title, content, product_area, ticket_type, status) VALUES 
-('29e3a207-d1ba-4e21-9916-cbab2b231dcc', 'Configuring SAML for Azure AD', 'Full content for Configuring SAML for Azure AD', 'Authentication', 'access', 'published'),
-('7da26c22-960a-48e3-836d-564d2b5bd3a1', 'Optimizing Batch Processors', 'Full content for Optimizing Batch Processors', 'Infrastructure', 'performance', 'published')
-ON CONFLICT (article_id) DO UPDATE SET
-    title = EXCLUDED.title,
-    content = EXCLUDED.content,
-    product_area = EXCLUDED.product_area,
-    status = EXCLUDED.status;
+-- ─── 13. CS KB Articles ──────────────────────────────────────────────────────
+INSERT INTO cs_kb_articles (article_id, title, content, product_area, ticket_type, status, usage_count) VALUES 
+('29e3a207-d1ba-4e21-9916-cbab2b231dcc', 'Configuring SAML for Azure AD', 'Steps to sync users via SCIM and SAML...', 'Authentication', 'access', 'published', 142),
+('7da26c22-960a-48e3-836d-564d2b5bd3a1', 'Optimizing Batch Processors', 'Best practices for high-volume data ingestion...', 'Infrastructure', 'performance', 'published', 89)
+ON CONFLICT (article_id) DO NOTHING;
 
--- ─── 12. New CS Tickets ──────────────────────────────────────────────────────
-INSERT INTO cs_tickets (ticket_id, customer_id, title, description, ticket_type, priority, status, source_channel, account_tier, sentiment_label, hil_required, hil_trigger_reason, linked_incident_id) VALUES 
-('40521f5d-b435-4e31-af05-b8dd32ef2342', '2219823b-e458-44be-bffb-30a2db5b1d02', 'Payment Gateway Timeout in EU cluster', 'Auto-generated mock description', 'bug', 'P1', 'in_progress', 'portal', 'enterprise', 'angry', false, NULL, 'b2d5b36f-add8-4689-9352-826fd386c545'),
-('da35ad33-1e54-4e81-896a-57bbba87a9b1', 'd4eb5f03-93b2-4b61-b6c4-489155634d24', 'How to export CSV with historical data', 'Auto-generated mock description', 'bug', 'P3', 'routed', 'portal', 'business', 'neutral', false, NULL, NULL),
-('828ff120-d2c2-4f56-9a8f-2b3adfa670d4', '3399b4e0-4550-4fc9-9790-5b91a3081b42', 'Login API returns HTTP 500 on MFA fallback', 'Auto-generated mock description', 'bug', 'P2', 'acknowledged', 'portal', 'standard', 'negative', false, NULL, NULL),
-('f2561063-e0fd-4661-92c2-61f1c587eaca', '8936c523-6524-459b-9e15-f86ec28b30fb', 'GDPR data deletion and audit evidence request', 'Auto-generated mock description', 'bug', 'P1', 'new', 'portal', 'enterprise', 'neutral', true, 'legal', NULL)
-ON CONFLICT (ticket_id) DO UPDATE SET status = EXCLUDED.status;
+-- ─── 14. CS Tickets ──────────────────────────────────────────────────────────
+INSERT INTO cs_tickets (
+    ticket_id, customer_id, title, description, ticket_type, priority, status, 
+    source_channel, account_tier, sentiment_label, sentiment_score,
+    review_required, review_trigger_reason, linked_incident_id,
+    sla_first_response_due, sla_resolution_due
+) VALUES 
+('40521f5d-b435-4e31-af05-b8dd32ef2342', '2219823b-e458-44be-bffb-30a2db5b1d02', 'Payment Gateway Timeout in EU cluster', 'Multiple customers reporting 504 timeouts on checkout.', 'bug', 'P1', 'in_progress', 'portal', 'enterprise', 'angry', 0.1, false, NULL, 'b2d5b36f-add8-4689-9352-826fd386c545', NOW() + INTERVAL '15 minutes', NOW() + INTERVAL '4 hours'),
+('da35ad33-1e54-4e81-896a-57bbba87a9b1', 'd4eb5f03-93b2-4b61-b6c4-489155634d24', 'How to export CSV with historical data', 'I need a report of all transactions from 2023.', 'training', 'P3', 'routed', 'portal', 'business', 'neutral', 0.5, false, NULL, NULL, NOW() + INTERVAL '4 hours', NOW() + INTERVAL '24 hours'),
+('f2561063-e0fd-4661-92c2-61f1c587eaca', '2219823b-e458-44be-bffb-30a2db5b1d02', 'GDPR data deletion and audit evidence request', 'Legal request for data erasure for user 9921.', 'legal', 'P1', 'new', 'portal', 'enterprise', 'neutral', 0.5, true, 'legal', NULL, NOW() + INTERVAL '15 minutes', NOW() + INTERVAL '4 hours'),
+('828ff120-d2c2-4f56-9a8f-2b3adfa670d4', '3399b4e0-4550-4fc9-9790-5b91a3081b42', 'Login API returns HTTP 500 on MFA fallback', 'Seeing sporadic 500 errors during SMS challenge.', 'bug', 'P2', 'acknowledged', 'portal', 'standard', 'negative', 0.3, false, NULL, NULL, NOW() + INTERVAL '1 hour', NOW() + INTERVAL '48 hours')
+ON CONFLICT (ticket_id) DO NOTHING;
 
--- ─── 13. CS Communication Logs ───────────────────────────────────────────────
-INSERT INTO cs_communication_logs (comm_id, ticket_id, channel, direction, content, sender_type) VALUES 
-('bad1127f-7f73-4583-aeba-c9859a3c2b96', '40521f5d-b435-4e31-af05-b8dd32ef2342', 'portal', 'outbound', 'Thank you for your report. We are looking into it.', 'agent_ai')
-ON CONFLICT (comm_id) DO NOTHING;
+-- ─── 15. CS Reviews ──────────────────────────────────────────────────────────
+INSERT INTO cs_reviews (review_id, ticket_id, checkpoint_type, trigger_reason, status) VALUES 
+('c1b758e1-537e-4499-af94-1177d55d38e1', 'f2561063-e0fd-4661-92c2-61f1c587eaca', 'Review-1', 'legal', 'pending'),
+('d2c869f2-648f-45aa-bf05-2288e66e49f2', '40521f5d-b435-4e31-af05-b8dd32ef2342', 'Review-4', 'critical_escalation', 'pending')
+ON CONFLICT (review_id) DO NOTHING;
 
--- ─── 14. CS HIL Reviews ──────────────────────────────────────────────────────
-INSERT INTO cs_hil_reviews (hil_id, ticket_id, checkpoint_type, trigger_reason, status) VALUES 
-('c1b758e1-537e-4499-af94-1177d55d38e1', 'f2561063-e0fd-4661-92c2-61f1c587eaca', 'HIL-1', 'legal', 'pending')
-ON CONFLICT (hil_id) DO UPDATE SET status = EXCLUDED.status;
+-- ─── 16. CS Notes ────────────────────────────────────────────────────────────
+INSERT INTO cs_notes (note_id, content) VALUES 
+('e1f2a3b4-c5d6-47e8-9f0a-1b2c3d4e5f6a', 'Investigating EU cluster latency - looks like a bad deployment in EU-West-1.'),
+('f2a3b4c5-d6e7-48f9-a0b1-2c3d4e5f6a7b', 'Customer is requesting a refund due to the downtime. Escalating to billing.')
+ON CONFLICT (note_id) DO NOTHING;
 
--- ─── 15. CSAT & Alerts ───────────────────────────────────────────────────────
-INSERT INTO cs_csat_surveys (csat_id, ticket_id, customer_id, rating, feedback_text) VALUES 
-('1d13b326-5f26-4c2b-a4f4-3f1c4bbbe2d0', '40521f5d-b435-4e31-af05-b8dd32ef2342', '2219823b-e458-44be-bffb-30a2db5b1d02', 5, 'Great support!')
-ON CONFLICT (csat_id) DO NOTHING;
+-- ─── 17. Channel Configs ─────────────────────────────────────────────────────
+INSERT INTO cs_channel_configs (channel, is_active, config) VALUES 
+('email', true, '{"provider": "sendgrid", "retry_policy": "exponential"}'),
+('chat', true, '{"welcome_message": "Hello! How can we help you today?", "ai_enabled": true}'),
+('portal', true, '{"pii_redaction": true, "attachment_limit_mb": 25}')
+ON CONFLICT (channel) DO UPDATE SET is_active = EXCLUDED.is_active;
 
-INSERT INTO cs_sla_alerts (alert_id, ticket_id, alert_type, sla_type, threshold_pct) VALUES 
-('b4c037ec-7c5c-4545-837e-7915a0168fb8', '40521f5d-b435-4e31-af05-b8dd32ef2342', 'warning', 'first_response', 75)
-ON CONFLICT (alert_id) DO NOTHING;
+-- ─── 18. Communication Templates ─────────────────────────────────────────────
+INSERT INTO cs_communication_templates (name, ticket_type, subject, body, variables) VALUES 
+('Incident Acknowledgment', 'bug', 'Re: {{ticket_id}} - We are investigating', 'Hello {{customer_name}}, we have received your report regarding {{title}} and are investigating.', '["ticket_id", "customer_name", "title"]'),
+('Legal Response Received', 'legal', 'Confirmation: Data Deletion Request', 'Thank you for your request. Our legal team is reviewing the documentation.', '["customer_name"]')
+ON CONFLICT (name) DO NOTHING;
+
+-- ─── 19. Audit Logs ──────────────────────────────────────────────────────────
+INSERT INTO cs_audit_logs (entity_type, entity_id, action, actor_type, actor_id) VALUES 
+('ticket', '40521f5d-b435-4e31-af05-b8dd32ef2342', 'update_status', 'human', 'sarah@csagent.io'),
+('review', 'c1b758e1-537e-4499-af94-1177d55d38e1', 'assign_reviewer', 'system', 'luka_ai');
+
+-- ─── 20. Reports ─────────────────────────────────────────────────────────────
+INSERT INTO cs_reports (report_type, period_start, period_end, data) VALUES 
+('weekly_sla', NOW() - INTERVAL '7 days', NOW(), '{"compliance_rate": 94.5, "total_breaches": 2, "avg_resolution_hrs": 4.2}')
+ON CONFLICT (report_id) DO NOTHING;

@@ -45,13 +45,12 @@ const createMockLog = () => {
         time: getCurrentTime()
     };
 };
-
 const ActivityLogSidebar = () => {
     const [logs, setLogs] = useState(FALLBACK_LOGS);
     const [visibleCount, setVisibleCount] = useState(6);
     const listRef = useRef(null);
 
-    useEffect(() => {
+    const fetchLogs = () => {
         fetchJson('/api/features/logs')
             .then((data) => {
                 if (Array.isArray(data.logs) && data.logs.length) {
@@ -59,6 +58,15 @@ const ActivityLogSidebar = () => {
                 }
             })
             .catch(() => setLogs(FALLBACK_LOGS));
+    };
+
+    useEffect(() => {
+        fetchLogs();
+
+        const handleUpdate = () => fetchLogs();
+        window.addEventListener('logs-updated-event', handleUpdate);
+
+        return () => window.removeEventListener('logs-updated-event', handleUpdate);
     }, []);
 
     useEffect(() => {
@@ -67,7 +75,9 @@ const ActivityLogSidebar = () => {
 
         const updateVisibleCount = () => {
             const itemHeight = 82;
-            setVisibleCount(Math.max(1, Math.floor(list.clientHeight / itemHeight)));
+            // Subtract top and bottom padding (14 + 4 = 18) to get actual available height
+            const availableHeight = list.clientHeight - 18;
+            setVisibleCount(Math.max(1, Math.floor(availableHeight / itemHeight)));
         };
 
         updateVisibleCount();
@@ -77,20 +87,7 @@ const ActivityLogSidebar = () => {
         return () => resizeObserver.disconnect();
     }, []);
 
-    useEffect(() => {
-        let timeoutId;
 
-        const scheduleNextLog = () => {
-            timeoutId = window.setTimeout(() => {
-                setLogs((currentLogs) => [createMockLog(), ...currentLogs].slice(0, 24));
-                scheduleNextLog();
-            }, getRandomDelay());
-        };
-
-        scheduleNextLog();
-
-        return () => window.clearTimeout(timeoutId);
-    }, []);
 
     const visibleLogs = useMemo(() => logs.slice(0, visibleCount), [logs, visibleCount]);
 

@@ -11,8 +11,9 @@ from config import settings
 from database import engine
 import models  # ensures all ORM classes are registered before create_all
 from routes import (
+    users, csat_surveys, sla_configs, sla_alerts, audit_logs, reports, channel_configs, communication_templates,
     rbac, metrics, features,
-    tickets, customers, kb_articles, incidents, hil_reviews, communications,
+    tickets, customers, kb_articles, incidents, reviews, communications,
     admin
 )
 
@@ -42,15 +43,26 @@ app.add_middleware(
 main_router = APIRouter()
 
 main_router.include_router(rbac.router, prefix="/api/rbac", tags=["RBAC"])
+main_router.include_router(reviews.router, prefix="/api/review", tags=["Reviews"])
 main_router.include_router(metrics.router, prefix="/api/metrics", tags=["Metrics"])
 main_router.include_router(features.router, prefix="/api/features", tags=["Features"])
 main_router.include_router(tickets.router, prefix="/api/tickets", tags=["Tickets"])
 main_router.include_router(customers.router, prefix="/api/customers", tags=["Customers"])
 main_router.include_router(kb_articles.router, prefix="/api/kb_articles", tags=["KB Articles"])
 main_router.include_router(incidents.router, prefix="/api/incidents", tags=["Incidents"])
-main_router.include_router(hil_reviews.router, prefix="/api/hil", tags=["HIL Reviews"])
+
 main_router.include_router(communications.router, prefix="/api/communications", tags=["Communications"])
 main_router.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
+
+main_router.include_router(users.router, prefix="/api/users", tags=["Users"])
+main_router.include_router(csat_surveys.router, prefix="/api/csat-surveys", tags=["CSAT Surveys"])
+main_router.include_router(sla_configs.router, prefix="/api/sla-configs", tags=["SLA Configs"])
+main_router.include_router(sla_alerts.router, prefix="/api/sla-alerts", tags=["SLA Alerts"])
+main_router.include_router(audit_logs.router, prefix="/api/audit-logs", tags=["Audit Logs"])
+main_router.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
+main_router.include_router(channel_configs.router, prefix="/api/channel-configs", tags=["Channel Configs"])
+main_router.include_router(communication_templates.router, prefix="/api/communication-templates", tags=["Communication Templates"])
+
 
 
 @main_router.get("/api/health")
@@ -62,4 +74,5 @@ app.include_router(main_router, prefix="/luka-aegis")
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=settings.backend_host, port=settings.backend_port, reload=settings.backend_reload)
+    is_dev = settings.app_env == "development"
+    uvicorn.run("main:app", host=settings.backend_host, port=settings.backend_port, reload=is_dev)

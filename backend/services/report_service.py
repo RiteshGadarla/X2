@@ -72,9 +72,9 @@ def generate_daily_digest(db: Session, target_date: date_type | None = None) -> 
         models.CSTicket.sla_resolution_due < datetime.now(timezone.utc),
     ).scalar() or 0
 
-    escalations = db.query(func.count(models.CSHILReview.hil_id)).filter(
-        models.CSHILReview.created_at >= day_start,
-        models.CSHILReview.created_at < day_end,
+    escalations = db.query(func.count(models.CSReview.review_id)).filter(
+        models.CSReview.created_at >= day_start,
+        models.CSReview.created_at < day_end,
     ).scalar() or 0
 
     avg_csat = db.query(func.avg(models.CSCSATSurvey.rating)).filter(
@@ -89,7 +89,7 @@ def generate_daily_digest(db: Session, target_date: date_type | None = None) -> 
         "currently_open_by_priority": open_by_priority,
         "sla_compliance_rate_24h": sla_rate,
         "overdue_tickets": overdue,
-        "hil_escalations_today": escalations,
+        "review_escalations_today": escalations,
         "avg_csat_today": round(float(avg_csat), 2) if avg_csat else None,
     }
     return _store("daily_digest", day_start, day_end, data, db)
@@ -208,8 +208,8 @@ def generate_ticket_ageing(db: Session) -> models.CSReport:
         else:
             buckets["15+d"] += 1
 
-    escalation_count = db.query(func.count(models.CSHILReview.hil_id)).filter(
-        models.CSHILReview.created_at >= now - timedelta(days=30)
+    escalation_count = db.query(func.count(models.CSReview.review_id)).filter(
+        models.CSReview.created_at >= now - timedelta(days=30)
     ).scalar() or 0
 
     data = {

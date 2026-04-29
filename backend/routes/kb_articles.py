@@ -29,3 +29,23 @@ def update_status(article_id: UUID, status_update: kb_schemas.KBArticleStatusUpd
         return kb_article_service.update_status(db, article_id, status_update.status, status_update.reviewer_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+import models
+
+@router.put("/{article_id}", response_model=kb_schemas.KBArticleResponse)
+def full_update_article(article_id: UUID, update_data: dict, db: Session = Depends(get_db)):
+    article = db.query(models.CSKBArticle).filter(models.CSKBArticle.article_id == article_id).first()
+    if not article: raise HTTPException(status_code=404, detail="Article not found")
+    for k, v in update_data.items():
+        setattr(article, k, v)
+    db.commit()
+    db.refresh(article)
+    return article
+
+@router.delete("/{article_id}")
+def delete_article(article_id: UUID, db: Session = Depends(get_db)):
+    article = db.query(models.CSKBArticle).filter(models.CSKBArticle.article_id == article_id).first()
+    if not article: raise HTTPException(status_code=404, detail="Article not found")
+    db.delete(article)
+    db.commit()
+    return {"status": "deleted"}

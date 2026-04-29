@@ -11,13 +11,13 @@ const ROLE_NAV = {
         { label: 'Home', route: '/support-lead', icon: LayoutDashboard },
         { label: 'Tickets', route: '/support-lead/tickets', icon: Ticket },
         { label: 'SLA', route: '/support-lead/sla', icon: BarChart3 },
-        { label: 'HIL Review', route: '/support-lead/hil', icon: ShieldAlert },
+        { label: 'Review', route: '/support-lead/review', icon: ShieldAlert },
         { label: 'Knowledge Base', route: '/support-lead/kb', icon: BookOpen },
     ],
     SUPPORT_MANAGER: [
         { label: 'Home', route: '/support-manager', icon: LayoutDashboard },
         { label: 'Sentiment', route: '/support-manager/sentiment', icon: MessageSquareHeart },
-        { label: 'HIL Review', route: '/support-manager/hil', icon: ShieldAlert },
+        { label: 'Review', route: '/support-manager/review', icon: ShieldAlert },
         { label: 'Knowledge Base', route: '/support-manager/kb', icon: BookOpen },
         { label: 'VoC', route: '/support-manager/voc', icon: TrendingUp },
     ],
@@ -25,12 +25,12 @@ const ROLE_NAV = {
         { label: 'Home', route: '/vp', icon: LayoutDashboard },
         { label: 'Executive', route: '/vp/exec', icon: BarChart3 },
         { label: 'VoC', route: '/vp/voc', icon: TrendingUp },
-        { label: 'HIL Override', route: '/vp/hil', icon: ShieldAlert },
+        { label: 'Review Override', route: '/vp/review', icon: ShieldAlert },
     ],
     LEGAL_COMPLIANCE: [
         { label: 'Home', route: '/legal', icon: LayoutDashboard },
         { label: 'Legal Queue', route: '/legal/queue', icon: Scale },
-        { label: 'HIL Review', route: '/legal/hil', icon: ShieldAlert },
+        { label: 'Review', route: '/legal/review', icon: ShieldAlert },
         { label: 'Knowledge Base', route: '/legal/kb', icon: BookOpen },
     ],
     ADMIN_OPS: [
@@ -99,18 +99,6 @@ const AppSidebar = () => {
     return (
         <>
             <aside className="app-sidebar">
-                {/* Logo */}
-                <button
-                    type="button"
-                    className="sidebar-logo-btn"
-                    onClick={() => navigate(homeRoute)}
-                    data-label="aegis.ai"
-                >
-                    <div className="sidenav-logo-mark">A</div>
-                </button>
-
-                <div className="sidebar-sep" />
-
                 {/* Role nav icons */}
                 <nav className="sidebar-nav">
                     {items.map((item) => {

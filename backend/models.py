@@ -46,8 +46,8 @@ class Ticket(Base):
     sentiment = Column(String(20))
 
 
-class HILQueue(Base):
-    __tablename__ = "hil_queue"
+class ReviewQueue(Base):
+    __tablename__ = "review_queue"
 
     id = Column(String(20), primary_key=True)
     ticket_id = Column(String(20))
@@ -94,7 +94,7 @@ class LegalOverview(Base):
     active_cases = Column(Integer)
     pending_approvals = Column(Integer)
     blocked_comms = Column(Integer)
-    avg_hil_turnaround = Column(String(20))
+    avg_review_turnaround = Column(String(20))
     weekly_flags = Column(JSONB)
     case_breakdown = Column(JSONB)
 
@@ -280,10 +280,10 @@ class CSTicket(Base):
     # Incident linkage
     linked_incident_id = Column(UUID(as_uuid=True), ForeignKey("cs_incidents.incident_id"))
 
-    # HIL flags
-    hil_required = Column(Boolean, default=False)
+    # Review flags
+    review_required = Column(Boolean, default=False)
     # billing | legal | vip | angry_sentiment | sla_breach | critical_escalation
-    hil_trigger_reason = Column(String(50))
+    review_trigger_reason = Column(String(50))
 
     # PII
     pii_detected = Column(Boolean, default=False)
@@ -316,12 +316,12 @@ class CSKBArticleTicket(Base):
     ticket_id = Column(UUID(as_uuid=True), ForeignKey("cs_tickets.ticket_id", ondelete="CASCADE"), primary_key=True)
 
 
-class CSHILReview(Base):
-    __tablename__ = "cs_hil_reviews"
+class CSReview(Base):
+    __tablename__ = "cs_reviews"
 
-    hil_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    review_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     ticket_id = Column(UUID(as_uuid=True), ForeignKey("cs_tickets.ticket_id"), nullable=False)
-    # HIL-1 | HIL-3 | HIL-4 | HIL-5
+    # Review-1 | Review-3 | Review-4 | Review-5
     checkpoint_type = Column(String(10), nullable=False)
     # billing | legal | vip | angry_sentiment | sla_breach | kb_publication | config_review | critical_escalation
     trigger_reason = Column(String(50), nullable=False)
@@ -335,8 +335,8 @@ class CSHILReview(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
-Index("ix_cs_hil_reviews_ticket_id", CSHILReview.ticket_id)
-Index("ix_cs_hil_reviews_status", CSHILReview.status)
+Index("ix_cs_reviews_ticket_id", CSReview.ticket_id)
+Index("ix_cs_reviews_status", CSReview.status)
 
 
 class CSCommunicationLog(Base):
@@ -431,6 +431,15 @@ class CSReport(Base):
     generated_at = Column(DateTime(timezone=True), server_default=func.now())
     # human | system
     generated_by = Column(String(20), default="system")
+
+
+class CSNote(Base):
+    __tablename__ = "cs_notes"
+    
+    note_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 class CSChannelConfig(Base):

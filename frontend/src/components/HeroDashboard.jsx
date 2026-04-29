@@ -2,6 +2,15 @@ import { useAuth } from '../state/auth-context';
 import { BRAND_COLORS, BRAND_PALETTES, ROLE_PILLARS } from '../config/brand';
 import { BrandAreaChart, BrandBarChart } from '../components/BrandPieChart';
 
+/* ── Helpers ── */
+const formatMetricLabel = (key) => {
+    return key
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+};
+
+/* ── Sub-components ── */
 const MetricBox = ({ label, value }) => (
     <div className="hero-metric-box">
         <div className="hero-metric-value">{value}</div>
@@ -9,13 +18,51 @@ const MetricBox = ({ label, value }) => (
     </div>
 );
 
+const LoadingSkeleton = () => (
+    <section className="page-hero dashboard-hero dashboard-hero-loading">
+        <div>
+            <div className="skeleton skeleton-badge" style={{ width: '200px', height: '24px', marginBottom: '12px' }} />
+            <div className="skeleton skeleton-title" />
+            <div className="skeleton skeleton-text" />
+            <div className="skeleton-badges">
+                <div className="skeleton skeleton-badge" />
+                <div className="skeleton skeleton-badge" />
+                <div className="skeleton skeleton-badge" />
+            </div>
+        </div>
+        <div className="skeleton-metrics">
+            <div className="skeleton skeleton-metric" />
+            <div className="skeleton skeleton-metric" />
+            <div className="skeleton skeleton-metric" />
+            <div className="skeleton skeleton-metric" />
+        </div>
+        <div className="skeleton-charts">
+            <div className="skeleton skeleton-chart" />
+            <div className="skeleton skeleton-chart" />
+        </div>
+    </section>
+);
+
+const EmptyState = ({ roleName }) => (
+    <section className="page-hero dashboard-hero">
+        <div className="dashboard-hero-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M3 3v18h18" />
+                <path d="M7 16l4-8 4 4 4-6" />
+            </svg>
+            <p>No dashboard metrics available for <strong>{roleName}</strong>. Data will appear here once the system is fully connected.</p>
+        </div>
+    </section>
+);
+
+/* ── Role hero content definitions ── */
 const ROLE_HERO_CONTENT = {
     SUPPORT_LEAD: {
         title: 'Support Operations Command Center',
         subtitle: 'Prioritize first-contact resolution, keep SLA clocks healthy, and provide proactive customer updates in every ticket stage.',
         pillars: ROLE_PILLARS.SUPPORT_LEAD,
-        access: ['Assigned Queues', 'Ticket Detail Access', 'SLA View', 'KB Draft Submission'],
         chartTitle: '7-Day Ticket Resolution Trend',
+        distributionTitle: 'Ticket Status Distribution',
         trendData: [
             { label: 'Mon', value: 32 },
             { label: 'Tue', value: 38 },
@@ -33,10 +80,10 @@ const ROLE_HERO_CONTENT = {
     },
     SUPPORT_MANAGER: {
         title: 'Manager Escalation and SLA Control',
-        subtitle: 'Balance team throughput, SLA governance, and mandatory HIL approvals for billing, legal, VIP, and angry customer tickets.',
+        subtitle: 'Balance team throughput, SLA governance, and mandatory review approvals for billing, legal, VIP, and angry customer tickets.',
         pillars: ROLE_PILLARS.SUPPORT_MANAGER,
-        access: ['All Queue Access', 'HIL Approval Control', 'CSAT + SLA Dashboards', 'KB Publication'],
         chartTitle: '14-Day SLA Compliance Trend',
+        distributionTitle: 'SLA Health Distribution',
         trendData: [
             { label: 'W1-D1', value: 88 },
             { label: 'W1-D3', value: 90 },
@@ -56,8 +103,8 @@ const ROLE_HERO_CONTENT = {
         title: 'Executive Customer Success Overview',
         subtitle: 'Track enterprise health with SLA adherence, CSAT momentum, recurring issue visibility, and strategic risk reduction outcomes.',
         pillars: ROLE_PILLARS.VP_CUSTOMER_SUCCESS,
-        access: ['Executive Dashboard', 'SLA Exception Approvals', 'VIP Handling Override', 'Final Escalation Decisions'],
         chartTitle: 'Quarterly Protected Revenue Trend',
+        distributionTitle: 'Customer Segment Breakdown',
         trendData: [
             { label: 'Q1', value: 780000 },
             { label: 'Q2', value: 860000 },
@@ -73,9 +120,9 @@ const ROLE_HERO_CONTENT = {
     LEGAL_COMPLIANCE: {
         title: 'Legal and Compliance Review Desk',
         subtitle: 'Handle legal-flagged tickets, enforce communication guardrails, and control customer-facing responses for regulated interactions.',
-        pillars: ['Legal HIL Queue', 'Compliance Flags', 'Correspondence Governance'],
-        access: ['Legal Ticket Ownership', 'Legal Override', 'Communication Block/Approve', 'Audit Outcome Logging'],
+        pillars: ['Legal Review Queue', 'Compliance Flags', 'Correspondence Governance'],
         chartTitle: 'Compliance Flag Trend',
+        distributionTitle: 'Case Type Distribution',
         trendData: [
             { label: 'Mon', value: 2 },
             { label: 'Tue', value: 1 },
@@ -95,8 +142,8 @@ const ROLE_HERO_CONTENT = {
         title: 'Integration and Channel Reliability Hub',
         subtitle: 'Monitor channel ingestion, API integration health, and operational readiness across ITSM, CRM, and support channels.',
         pillars: ROLE_PILLARS.ADMIN_OPS,
-        access: ['Integration Settings', 'Channel Health', 'System Diagnostics', 'Config Governance'],
         chartTitle: 'Weekly Channel Volume',
+        distributionTitle: 'Integration Health Status',
         trendData: [
             { label: 'Email', value: 450 },
             { label: 'Chat', value: 320 },
@@ -114,8 +161,8 @@ const ROLE_HERO_CONTENT = {
         title: 'Customer Support Portal Overview',
         subtitle: 'Submit issues faster, view real-time ticket progress, and receive structured updates with clear SLA targets and next steps.',
         pillars: ROLE_PILLARS.CUSTOMER,
-        access: ['Ticket Submission', 'Status Tracking', 'SLA Target Visibility', 'Request Human Support'],
         chartTitle: 'Recent Ticket Status Flow',
+        distributionTitle: 'Submission Channel Mix',
         trendData: [
             { label: 'New', value: 8 },
             { label: 'In Triage', value: 6 },
@@ -131,28 +178,35 @@ const ROLE_HERO_CONTENT = {
     }
 };
 
-const HeroDashboard = ({ metrics }) => {
+/* ── Main component ── */
+const HeroDashboard = ({ metrics, loading }) => {
     const { role, rolesList } = useAuth();
     
     // Find friendly role name
     const activeRoleData = rolesList.find(r => r.id === role);
     const roleName = activeRoleData ? activeRoleData.name : role;
 
-    if (!metrics) return null;
+    // Loading state
+    if (loading || metrics === null) return <LoadingSkeleton />;
 
     // Filter out description for metrics presentation
     const { description, ...metricData } = metrics;
     const metricKeys = Object.keys(metricData);
+
+    // Empty state
+    if (metricKeys.length === 0) return <EmptyState roleName={roleName} />;
+
     const roleHero = ROLE_HERO_CONTENT[role] || ROLE_HERO_CONTENT.SUPPORT_LEAD;
 
     return (
-        <section className="page-hero dashboard-hero">
+        <section className="page-hero dashboard-hero" id="dashboard-hero">
+            {/* Header */}
             <div>
                 <div className="dashboard-hero-context">
                     Active Context: {roleName}
                 </div>
-                <h1 style={{ margin: '0 0 12px', color: 'var(--neutral-9)' }}>{roleHero.title}</h1>
-                <p style={{ maxWidth: '760px' }}>{description || roleHero.subtitle}</p>
+                <h1 style={{ margin: '0 0 8px', color: 'var(--neutral-9)' }}>{roleHero.title}</h1>
+                <p style={{ maxWidth: '720px' }}>{description || roleHero.subtitle}</p>
                 <div className="badge-row">
                     {roleHero.pillars.map((item) => (
                         <span key={item} className="badge-chip">{item}</span>
@@ -160,15 +214,21 @@ const HeroDashboard = ({ metrics }) => {
                 </div>
             </div>
 
+            {/* KPI Metric Cards */}
             <div className="dashboard-hero-metrics">
-                {metricKeys.map((key) => {
-                    const formattedLabel = key.split('_').join(' ');
-                    return <MetricBox key={key} label={formattedLabel} value={metricData[key]} />;
-                })}
+                {metricKeys.map((key) => (
+                    <MetricBox
+                        key={key}
+                        label={formatMetricLabel(key)}
+                        value={metricData[key]}
+                    />
+                ))}
             </div>
 
+            {/* Chart Grid */}
             <div className="dashboard-hero-grid">
-                <div className="card-demo dashboard-hero-card">
+                {/* Trend Chart Card */}
+                <div className="dashboard-hero-card">
                     <div className="card-demo-header">
                         <h3 className="type-h4">{roleHero.chartTitle}</h3>
                     </div>
@@ -182,17 +242,18 @@ const HeroDashboard = ({ metrics }) => {
                     </div>
                 </div>
 
-                <div className="card-demo dashboard-hero-card">
+                {/* Distribution Chart Card */}
+                <div className="dashboard-hero-card">
                     <div className="card-demo-header">
-                        <h3 className="type-h4">Access Scope</h3>
+                        <h3 className="type-h4">{roleHero.distributionTitle}</h3>
                     </div>
-                    <ul className="dashboard-hero-access-list">
-                        {roleHero.access.map((item) => (
-                            <li key={item}>{item}</li>
-                        ))}
-                    </ul>
-                    <div style={{ marginTop: 'auto' }}>
-                        <BrandBarChart data={roleHero.distribution} categoryKey="name" valueKey="value" height={150} />
+                    <div className="dashboard-hero-distribution">
+                        <BrandBarChart
+                            data={roleHero.distribution}
+                            categoryKey="name"
+                            valueKey="value"
+                            height={200}
+                        />
                     </div>
                 </div>
             </div>

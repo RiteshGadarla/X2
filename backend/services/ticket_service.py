@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 import models
 from schemas import ticket as ticket_schemas
-from services import priority_service, sla_service, hil_service
+from services import priority_service, sla_service, review_service
 
 def create_ticket(db: Session, ticket_in: ticket_schemas.TicketCreate) -> models.CSTicket:
     # Look up customer
@@ -25,18 +25,18 @@ def create_ticket(db: Session, ticket_in: ticket_schemas.TicketCreate) -> models
             is_vip=customer.is_vip
         )
 
-    # Determine if HIL review is required initially
-    hil_req = False
-    hil_reason = None
+    # Determine if Review is required initially
+    review_req = False
+    review_reason = None
     if ticket_in.ticket_type in ("billing", "legal"):
-        hil_req = True
-        hil_reason = ticket_in.ticket_type
+        review_req = True
+        review_reason = ticket_in.ticket_type
     elif customer.is_vip:
-        hil_req = True
-        hil_reason = "vip"
+        review_req = True
+        review_reason = "vip"
     elif ticket_in.sentiment_label == "angry":
-        hil_req = True
-        hil_reason = "angry_sentiment"
+        review_req = True
+        review_reason = "angry_sentiment"
 
     db_ticket = models.CSTicket(
         customer_id=customer.customer_id,
@@ -57,8 +57,8 @@ def create_ticket(db: Session, ticket_in: ticket_schemas.TicketCreate) -> models
         triage_rationale=ticket_in.triage_rationale,
         account_tier=customer.account_tier,
         ai_disclosure_acknowledged=ticket_in.ai_disclosure_acknowledged,
-        hil_required=hil_req,
-        hil_trigger_reason=hil_reason
+        review_required=review_req,
+        review_trigger_reason=review_reason
     )
     
     # SLA deadlines
@@ -68,13 +68,14 @@ def create_ticket(db: Session, ticket_in: ticket_schemas.TicketCreate) -> models
     db.commit()
     db.refresh(db_ticket)
 
-    # Create HIL review row if needed
-    if db_ticket.hil_required:
-        hil_service.create_hil_checkpoint(
+    # Create review row if needed
+    if db_ticket.review_required:
+        review_service.create_review(
             db=db,
-            ticket_id=db_ticket.ticket_id,
-            checkpoint_type="HIL-3",
-            trigger_reason=db_ticket.hil_trigger_reason
+            ticket=db_ticket,
+            customer=customer,
+            checkpoint_type="Review-3",
+            trigger_reason=db_ticket.review_trigger_reason
         )
 
     return db_ticket
@@ -91,13 +92,13 @@ def update_ticket_status(db: Session, ticket_id: UUID, status_update: ticket_sch
         raise ValueError(f"Ticket {ticket_id} not found")
 
     if status_update.status in ("closed", "resolved"):
-        if ticket.hil_required:
-            pending_hil = db.query(models.CSHILReview).filter(
-                models.CSHILReview.ticket_id == ticket_id,
-                models.CSHILReview.status == "pending"
+        if ticket.review_required:
+            pending_review = db.query(models.CSReview).filter(
+                models.CSReview.ticket_id == ticket_id,
+                models.CSReview.status == "pending"
             ).first()
-            if pending_hil:
-                raise ValueError("Cannot resolve/close a ticket with pending HIL reviews")
+            if pending_review:
+                raise ValueError("Cannot resolve/close a ticket with pending reviews")
         
         # P1/P2 resolution validation
         if status_update.status == "closed" and ticket.priority in ("P1", "P2"):

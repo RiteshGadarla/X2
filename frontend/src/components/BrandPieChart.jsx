@@ -1,20 +1,21 @@
 import { useRef, useState, useLayoutEffect } from 'react';
 import { BRAND_COLORS } from '../config/brand';
 
-const useAutoHeight = (fallback = 200) => {
+const useContainerSize = (fallbackWidth = 1000, fallbackHeight = 200) => {
     const ref = useRef(null);
-    const [height, setHeight] = useState(fallback);
+    const [size, setSize] = useState({ width: fallbackWidth, height: fallbackHeight });
     useLayoutEffect(() => {
         const el = ref.current;
         if (!el) return;
         const ro = new ResizeObserver(([entry]) => {
+            const w = Math.round(entry.contentRect.width);
             const h = Math.round(entry.contentRect.height);
-            if (h > 0) setHeight(h);
+            if (w > 0 && h > 0) setSize({ width: w, height: h });
         });
         ro.observe(el);
         return () => ro.disconnect();
     }, []);
-    return [ref, height];
+    return [ref, size.width, size.height];
 };
 
 const defaultPalette = [
@@ -76,7 +77,7 @@ const describeDonutSlice = (centerX, centerY, outerRadius, innerRadius, startAng
 
 const BrandBarChart = ({
     data,
-    height = 220,
+    height: fallbackHeight = 220,
     categoryKey = 'name',
     valueKey = 'value',
     series,
@@ -85,7 +86,9 @@ const BrandBarChart = ({
     palette = defaultPalette,
     showLegend = false,
 }) => {
-    if (!Array.isArray(data) || data.length === 0) return null;
+    const [containerRef, width, height] = useContainerSize(1000, fallbackHeight);
+
+    if (!Array.isArray(data) || data.length === 0) return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
 
     const resolvedSeries = Array.isArray(series) && series.length
         ? series.map((item, index) => ({
@@ -97,28 +100,31 @@ const BrandBarChart = ({
 
     const numericValues = data.flatMap((entry) => resolvedSeries.map((item) => Number(entry[item.key]) || 0));
     const maxValue = Math.max(...numericValues, 1);
-    const width = 1000;
-    const left = 62;
-    const right = 18;
-    const top = 30;
-    const bottom = 42;
+    const left = 68;
+    const right = 24;
+    const top = 32;
+    const bottom = 64;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
     const rowCount = 4;
     const categoryWidth = plotWidth / data.length;
-    const groupedBarWidth = resolvedSeries.length > 1 ? categoryWidth * 0.7 / resolvedSeries.length : categoryWidth * 0.52;
-    const groupGap = resolvedSeries.length > 1 ? (categoryWidth - groupedBarWidth * resolvedSeries.length) / 2 : (categoryWidth - groupedBarWidth) / 2;
+    const innerGap = resolvedSeries.length > 1 ? 6 : 0;
+    const maxGroupWidth = categoryWidth * 0.7;
+    const totalInnerGaps = Math.max(0, resolvedSeries.length - 1) * innerGap;
+    const groupedBarWidth = resolvedSeries.length > 1 ? (maxGroupWidth - totalInnerGaps) / resolvedSeries.length : categoryWidth * 0.52;
+    const groupGap = resolvedSeries.length > 1 ? (categoryWidth - maxGroupWidth) / 2 : (categoryWidth - groupedBarWidth) / 2;
     const tickPositions = Array.from({ length: rowCount + 1 }, (_, index) => (maxValue / rowCount) * index);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-            <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Brand bar chart">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', height: '100%', minHeight: 0 }}>
+            <div ref={containerRef} style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+                <svg viewBox={`0 0 ${width} ${height}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none" role="img" aria-label="Brand bar chart">
                 {tickPositions.map((tickValue) => {
                     const y = top + plotHeight - (tickValue / maxValue) * plotHeight;
                     return (
                         <g key={tickValue}>
                             <line x1={left} x2={width - right} y1={y} y2={y} stroke="var(--neutral-7)" strokeDasharray="4 4" />
-                            <text x={left - 10} y={y + 4} textAnchor="end" fontSize="10" fill="var(--neutral-4)">{yTickFormatter(tickValue)}</text>
+                            <text x={left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="var(--neutral-4)">{yTickFormatter(tickValue)}</text>
                         </g>
                     );
                 })}
@@ -128,18 +134,12 @@ const BrandBarChart = ({
                     return resolvedSeries.map((seriesItem, seriesIndex) => {
                         const value = Number(entry[seriesItem.key]) || 0;
                         const barHeight = (value / maxValue) * plotHeight;
-                        const x = categoryStart + groupGap + seriesIndex * groupedBarWidth;
+                        const x = categoryStart + groupGap + seriesIndex * (groupedBarWidth + innerGap);
                         const y = top + plotHeight - barHeight;
                         const fill = entry.color || seriesItem.color;
-                        const spaceAbove = y - top;
-                        const labelAbove = spaceAbove >= 16;
-                        const labelY = labelAbove ? y - 7 : y + 16;
-                        const labelFill = labelAbove ? 'var(--neutral-2)' : '#ffffff';
-
                         return (
                             <g key={`${entry[categoryKey]}-${seriesItem.key}`}>
                                 <rect x={x} y={y} width={groupedBarWidth} height={barHeight} rx="6" fill={fill} />
-                                <text x={x + groupedBarWidth / 2} y={labelY} textAnchor="middle" fontSize="11" fontWeight="700" fill={labelFill}>{valueFormatter(value)}</text>
                             </g>
                         );
                     });
@@ -147,15 +147,25 @@ const BrandBarChart = ({
 
                 {data.map((entry, index) => {
                     const x = left + index * categoryWidth + categoryWidth / 2;
+                    const nameStr = String(entry[categoryKey] || '');
+                    const words = nameStr.split(' ');
+                    let lines = [nameStr];
+                    if (words.length > 1 && nameStr.length > 12) {
+                        const mid = Math.ceil(words.length / 2);
+                        lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+                    }
                     return (
-                        <text key={entry[categoryKey]} x={x} y={height - 16} textAnchor="middle" fontSize="10" fill="var(--neutral-4)">
-                            {entry[categoryKey]}
+                        <text key={entry[categoryKey]} x={x} y={height - 14 - (lines.length - 1) * 12} textAnchor="middle" fontSize="11" fill="var(--neutral-4)">
+                            {lines.map((line, i) => (
+                                <tspan key={i} x={x} dy={i === 0 ? 0 : 12}>{line}</tspan>
+                            ))}
                         </text>
                     );
                 })}
 
                 <line x1={left} x2={width - right} y1={top + plotHeight} y2={top + plotHeight} stroke="var(--neutral-6)" />
             </svg>
+            </div>
 
             {showLegend && resolvedSeries.length > 1 ? (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 20px', marginTop: '4px' }}>
@@ -182,15 +192,13 @@ const BrandLineChart = ({
     areaOpacity = 0.18,
     minValue,
 }) => {
-    const [containerRef, height] = useAutoHeight(fallbackHeight);
+    const [containerRef, width, height] = useContainerSize(1000, fallbackHeight);
 
     if (!Array.isArray(data) || data.length === 0) return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
-
-    const width = 1000;
-    const left = 58;
-    const right = 18;
-    const top = 48;
-    const bottom = 36;
+    const left = 68;
+    const right = 28;
+    const top = 36;
+    const bottom = 48;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
     const values = data.map((entry) => Number(entry[valueKey]) || 0);
@@ -218,14 +226,14 @@ const BrandLineChart = ({
     const tickValues = Array.from({ length: tickCount + 1 }, (_, i) => baseMin + (range / tickCount) * i);
 
     return (
-        <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: 0 }}>
-            <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%" role="img" aria-label="Brand line chart">
+        <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: 0, position: 'relative' }}>
+            <svg viewBox={`0 0 ${width} ${height}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none" role="img" aria-label="Brand line chart">
                 {tickValues.map((tickValue) => {
                     const y = toY(tickValue);
                     return (
                         <g key={tickValue}>
                             <line x1={left} x2={width - right} y1={y} y2={y} stroke="var(--neutral-7)" strokeDasharray="4 4" />
-                            <text x={left - 8} y={y + 4} textAnchor="end" fontSize="10" fill="var(--neutral-4)">{valueFormatter(tickValue)}</text>
+                            <text x={left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="var(--neutral-4)">{valueFormatter(tickValue)}</text>
                         </g>
                     );
                 })}
@@ -234,12 +242,31 @@ const BrandLineChart = ({
                 <path d={buildPath(points)} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
 
                 {points.map((point, index) => {
-                    const labelY = point.y - 14;
+                    /* Alternate labels above/below to prevent overlap when points are close */
+                    const above = index % 2 === 0;
+                    const labelY = above ? point.y - 12 : point.y + 22;
                     return (
                         <g key={point.label}>
                             <circle cx={point.x} cy={point.y} r="5" fill={color} />
-                            <text x={point.x} y={labelY} textAnchor="middle" fontSize="26" fontWeight="800" fill={color}>{valueFormatter(point.value)}</text>
-                            <text x={point.x} y={height - 12} textAnchor="middle" fontSize="10" fill="var(--neutral-4)">{data[index][categoryKey]}</text>
+                            <circle cx={point.x} cy={point.y} r="9" fill={color} opacity="0.15" />
+                            <text x={point.x} y={labelY} textAnchor="middle" fontSize="13" fontWeight="700" fill={color}>{valueFormatter(point.value)}</text>
+                            
+                            {(() => {
+                                const nameStr = String(data[index][categoryKey] || '');
+                                const words = nameStr.split(' ');
+                                let lines = [nameStr];
+                                if (words.length > 1 && nameStr.length > 12) {
+                                    const mid = Math.ceil(words.length / 2);
+                                    lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+                                }
+                                return (
+                                    <text x={point.x} y={height - 14 - (lines.length - 1) * 12} textAnchor="middle" fontSize="11" fill="var(--neutral-4)">
+                                        {lines.map((line, i) => (
+                                            <tspan key={i} x={point.x} dy={i === 0 ? 0 : 12}>{line}</tspan>
+                                        ))}
+                                    </text>
+                                );
+                            })()}
                         </g>
                     );
                 })}
@@ -282,7 +309,7 @@ const BrandPieChart = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <svg viewBox={`0 0 ${width} ${drawingHeight}`} width="100%" height={height} role="img" aria-label="Brand pie chart">
                 {chartData.map((entry) => {
-                    const sliceAngle = (Number(entry.value) / total) * 360;
+                    const sliceAngle = (Number(entry.value) / total) * 359.999;
                     const endAngle = startAngle + sliceAngle;
                     const path = describeDonutSlice(centerX, centerY, safeOuterRadius, safeInnerRadius, startAngle, endAngle);
                     startAngle = endAngle;

@@ -46,3 +46,35 @@ def assign_ticket(ticket_id: UUID, assign_update: ticket_schemas.TicketAssign, d
         return ticket_service.assign_ticket(db, ticket_id, assign_update)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+import models
+
+@router.put("/{ticket_id}", response_model=ticket_schemas.TicketResponse)
+def full_update_ticket(ticket_id: UUID, update_data: dict, db: Session = Depends(get_db)):
+    ticket = db.query(models.CSTicket).filter(models.CSTicket.ticket_id == ticket_id).first()
+    if not ticket: raise HTTPException(status_code=404, detail="Ticket not found")
+    for k, v in update_data.items():
+        setattr(ticket, k, v)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+@router.delete("/{ticket_id}")
+def delete_ticket(ticket_id: UUID, db: Session = Depends(get_db)):
+    ticket = db.query(models.CSTicket).filter(models.CSTicket.ticket_id == ticket_id).first()
+    if not ticket: raise HTTPException(status_code=404, detail="Ticket not found")
+    db.delete(ticket)
+    db.commit()
+    return {"status": "deleted"}
+
+@router.get("/{ticket_id}/updates")
+def get_ticket_updates(ticket_id: UUID, db: Session = Depends(get_db)):
+    return db.query(models.TicketUpdate).filter(models.TicketUpdate.ticket_id == str(ticket_id)).all()
+
+@router.post("/{ticket_id}/updates")
+def create_ticket_update(ticket_id: UUID, update_data: dict, db: Session = Depends(get_db)):
+    tu = models.TicketUpdate(ticket_id=str(ticket_id), **update_data)
+    db.add(tu)
+    db.commit()
+    db.refresh(tu)
+    return tu

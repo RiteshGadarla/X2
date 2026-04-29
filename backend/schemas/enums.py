@@ -57,14 +57,14 @@ class SentimentLabel(str, Enum):
     angry = "angry"
 
 
-class HILCheckpoint(str, Enum):
-    HIL_1 = "HIL-1"
-    HIL_3 = "HIL-3"
-    HIL_4 = "HIL-4"
-    HIL_5 = "HIL-5"
+class ReviewCheckpoint(str, Enum):
+    Review_1 = "Review-1"
+    Review_3 = "Review-3"
+    Review_4 = "Review-4"
+    Review_5 = "Review-5"
 
 
-class HILTriggerReason(str, Enum):
+class ReviewTriggerReason(str, Enum):
     billing = "billing"
     legal = "legal"
     vip = "vip"
@@ -75,7 +75,7 @@ class HILTriggerReason(str, Enum):
     critical_escalation = "critical_escalation"
 
 
-class HILStatus(str, Enum):
+class ReviewStatus(str, Enum):
     pending = "pending"
     approved = "approved"
     rejected = "rejected"

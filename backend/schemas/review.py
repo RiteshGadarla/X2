@@ -2,24 +2,24 @@ from uuid import UUID
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
-from schemas.enums import HILCheckpoint, HILTriggerReason, HILStatus
+from schemas.enums import ReviewCheckpoint, ReviewTriggerReason, ReviewStatus
 
 
-class HILReviewCreate(BaseModel):
+class ReviewCreate(BaseModel):
     ticket_id: UUID
-    checkpoint_type: HILCheckpoint
-    trigger_reason: HILTriggerReason
+    checkpoint_type: ReviewCheckpoint
+    trigger_reason: ReviewTriggerReason
 
 
-class HILReviewAction(BaseModel):
-    status: HILStatus
+class ReviewAction(BaseModel):
+    status: ReviewStatus
     reviewer_id: UUID
     comments: Optional[str] = None
     action_taken: Optional[str] = None
 
 
-class HILReviewResponse(BaseModel):
-    hil_id: UUID
+class ReviewResponse(BaseModel):
+    review_id: UUID
     ticket_id: UUID
     checkpoint_type: str
     trigger_reason: str

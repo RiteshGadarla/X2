@@ -4,9 +4,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database import get_db
 from models import (
-    Ticket, HILQueue, KBStats, VOC,
+    Ticket, ReviewQueue, KBStats, VOC,
     ChannelVolume, LegalOverview, CustomerPortal, ActivityLog,
-    TicketUpdate,
+    TicketUpdate, CSReport, CSNote
 )
 from services.ticket_utils import enrich_ticket_sort_fields
 
@@ -27,44 +27,11 @@ class TicketUpdateRequest(BaseModel):
     message: str
 
 
-@router.get("/tickets")
-def get_tickets(db: Session = Depends(get_db)):
-    rows = db.query(Ticket).all()
-    tickets = [
-        {
-            "id": t.id, "customer": t.customer, "tier": t.tier,
-            "summary": t.summary, "time_remaining": t.time_remaining,
-            "status": t.status, "priority": t.priority, "sentiment": t.sentiment,
-        }
-        for t in rows
-    ]
-    enriched = [enrich_ticket_sort_fields(t) for t in tickets]
-    sorted_tickets = sorted(
-        enriched,
-        key=lambda t: (
-            t["sla_priority_rank"],
-            t["priority_rank"],
-            t["customer_tier_rank"],
-            t["time_remaining_minutes"],
-            t["id"],
-        ),
-    )
-    return {"tickets": sorted_tickets}
-
-
-@router.get("/hil")
-def get_hil_queue(db: Session = Depends(get_db)):
-    rows = db.query(HILQueue).all()
-    return {
-        "queue": [
-            {
-                "id": h.id, "ticket_id": h.ticket_id,
-                "checkpoint_type": h.checkpoint_type,
-                "age": h.age, "customer_tier": h.customer_tier,
-            }
-            for h in rows
-        ]
-    }
+class ActivityLogCreateRequest(BaseModel):
+    severity: str = "info"
+    source: str = "System"
+    message: str
+    role_scope: str = "System"
 
 
 @router.get("/kb")
@@ -101,20 +68,6 @@ def get_voc(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/channels")
-def get_channels(db: Session = Depends(get_db)):
-    cv = db.query(ChannelVolume).first()
-    if not cv:
-        return {
-            "email": 0, "chat": 0, "slack": 0,
-            "portal": 0, "whatsapp": 0, "peak_hour": "N/A",
-        }
-    return {
-        "email": cv.email, "chat": cv.chat, "slack": cv.slack,
-        "portal": cv.portal, "whatsapp": cv.whatsapp, "peak_hour": cv.peak_hour,
-    }
-
-
 @router.get("/legal-overview")
 def get_legal_overview(db: Session = Depends(get_db)):
     lo = db.query(LegalOverview).first()
@@ -123,7 +76,7 @@ def get_legal_overview(db: Session = Depends(get_db)):
             "active_cases": 0,
             "pending_approvals": 0,
             "blocked_comms": 0,
-            "avg_hil_turnaround": "0h",
+            "avg_review_turnaround": "0h",
             "weekly_flags": [],
             "case_breakdown": [],
         }
@@ -131,7 +84,7 @@ def get_legal_overview(db: Session = Depends(get_db)):
         "active_cases": lo.active_cases,
         "pending_approvals": lo.pending_approvals,
         "blocked_comms": lo.blocked_comms,
-        "avg_hil_turnaround": lo.avg_hil_turnaround,
+        "avg_review_turnaround": lo.avg_review_turnaround,
         "weekly_flags": lo.weekly_flags,
         "case_breakdown": lo.case_breakdown,
     }
@@ -155,6 +108,48 @@ def get_customer_portal(db: Session = Depends(get_db)):
     }
 
 
+@router.get("/channels")
+def get_channel_volume(db: Session = Depends(get_db)):
+    cv = db.query(ChannelVolume).first()
+    if not cv:
+        return {
+            "email": 0,
+            "chat": 0,
+            "slack": 0,
+            "portal": 0,
+            "whatsapp": 0,
+            "peak_hour": "N/A",
+        }
+    return {
+        "email": cv.email,
+        "chat": cv.chat,
+        "slack": cv.slack,
+        "portal": cv.portal,
+        "whatsapp": cv.whatsapp,
+        "peak_hour": cv.peak_hour,
+    }
+
+
+@router.get("/tickets")
+def get_all_tickets(db: Session = Depends(get_db)):
+    rows = db.query(Ticket).all()
+    return {
+        "tickets": [
+            {
+                "id": t.id,
+                "customer": t.customer,
+                "tier": t.tier,
+                "summary": t.summary,
+                "time_remaining": t.time_remaining,
+                "status": t.status,
+                "priority": t.priority,
+                "sentiment": t.sentiment,
+            }
+            for t in rows
+        ]
+    }
+
+
 @router.get("/logs")
 def get_activity_logs(db: Session = Depends(get_db)):
     rows = db.query(ActivityLog).order_by(ActivityLog.id.desc()).all()
@@ -169,57 +164,33 @@ def get_activity_logs(db: Session = Depends(get_db)):
     }
 
 
-@router.post("/tickets/submit", status_code=201)
-def submit_ticket(body: TicketSubmitRequest, db: Session = Depends(get_db)):
-    ticket_id = f"TKT-{uuid.uuid4().hex[:6].upper()}"
-    ticket = Ticket(
-        id=ticket_id,
-        customer=body.customer,
-        tier=body.tier,
-        summary=body.summary,
-        time_remaining="4h 0m",
-        status="open",
-        priority=body.priority,
-        sentiment="neutral",
+from datetime import datetime
+
+@router.post("/logs", status_code=201)
+def create_activity_log(body: ActivityLogCreateRequest, db: Session = Depends(get_db)):
+    timestamp = int(datetime.now().timestamp())
+    log_id = f"LZ-{timestamp}-{uuid.uuid4().hex[:4].upper()}"
+    current_time = datetime.now().strftime("%H:%M")
+    
+    new_log = ActivityLog(
+        id=log_id,
+        time=current_time,
+        severity=body.severity,
+        source=body.source,
+        message=body.message,
+        role_scope=body.role_scope
     )
-    db.add(ticket)
+    db.add(new_log)
     db.commit()
-    db.refresh(ticket)
+    db.refresh(new_log)
+    
     return {
-        "id": ticket.id,
-        "customer": ticket.customer,
-        "tier": ticket.tier,
-        "summary": ticket.summary,
-        "status": ticket.status,
-        "priority": ticket.priority,
-        "sentiment": ticket.sentiment,
-        "time_remaining": ticket.time_remaining,
-    }
-
-
-@router.get("/tickets/{ticket_id}/updates")
-def get_ticket_updates(ticket_id: str, db: Session = Depends(get_db)):
-    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
-    if not ticket:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-    rows = (
-        db.query(TicketUpdate)
-        .filter(TicketUpdate.ticket_id == ticket_id)
-        .order_by(TicketUpdate.created_at)
-        .all()
-    )
-    return {
-        "ticket_id": ticket_id,
-        "updates": [
-            {
-                "id": u.id,
-                "author": u.author,
-                "author_type": u.author_type,
-                "message": u.message,
-                "created_at": u.created_at.isoformat() if u.created_at else None,
-            }
-            for u in rows
-        ],
+        "id": new_log.id,
+        "time": new_log.time,
+        "severity": new_log.severity,
+        "source": new_log.source,
+        "message": new_log.message,
+        "role_scope": new_log.role_scope
     }
 
 
@@ -247,3 +218,123 @@ def add_ticket_update(ticket_id: str, body: TicketUpdateRequest, db: Session = D
         "message": update.message,
         "created_at": update.created_at.isoformat() if update.created_at else None,
     }
+
+class GenerateReportRequest(BaseModel):
+    report_type: str = "weekly_summary"
+
+@router.get("/reports")
+def get_reports(db: Session = Depends(get_db)):
+    rows = db.query(CSReport).order_by(CSReport.generated_at.desc()).all()
+    return {
+        "reports": [
+            {
+                "id": str(r.report_id),
+                "type": r.report_type,
+                "period_start": r.period_start.isoformat(),
+                "period_end": r.period_end.isoformat(),
+                "data": r.data,
+                "generated_at": r.generated_at.isoformat(),
+            }
+            for r in rows
+        ]
+    }
+
+@router.post("/reports/generate")
+def generate_report(req: GenerateReportRequest, db: Session = Depends(get_db)):
+    import datetime
+    
+    end_date = datetime.datetime.now(datetime.timezone.utc)
+    start_date = end_date - datetime.timedelta(days=7)
+    
+    import random
+    mock_data = {
+        "total_tickets": random.randint(100, 300),
+        "resolved_tickets": random.randint(80, 200),
+        "avg_resolution_time_hrs": round(random.uniform(2.5, 8.5), 1),
+        "csat_score": round(random.uniform(4.0, 5.0), 1)
+    }
+    
+    new_report = CSReport(
+        report_type=req.report_type,
+        period_start=start_date,
+        period_end=end_date,
+        data=mock_data,
+        generated_by="system"
+    )
+    
+    db.add(new_report)
+    db.commit()
+    db.refresh(new_report)
+    
+    return {
+        "id": str(new_report.report_id),
+        "type": new_report.report_type,
+        "period_start": new_report.period_start.isoformat(),
+        "period_end": new_report.period_end.isoformat(),
+        "data": new_report.data,
+        "generated_at": new_report.generated_at.isoformat(),
+    }
+
+@router.delete("/reports")
+def clear_reports(db: Session = Depends(get_db)):
+    db.query(CSReport).delete()
+    db.commit()
+    return {"status": "cleared"}
+
+class CreateNoteRequest(BaseModel):
+    content: str
+
+class UpdateNoteRequest(BaseModel):
+    content: str
+
+@router.get("/notes")
+def get_notes(db: Session = Depends(get_db)):
+    rows = db.query(CSNote).order_by(CSNote.created_at.desc()).all()
+    return {
+        "notes": [
+            {
+                "id": str(n.note_id),
+                "content": n.content,
+                "created_at": n.created_at.isoformat(),
+                "updated_at": n.updated_at.isoformat(),
+            }
+            for n in rows
+        ]
+    }
+
+@router.post("/notes")
+def create_note(req: CreateNoteRequest, db: Session = Depends(get_db)):
+    note = CSNote(content=req.content)
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+    return {
+        "id": str(note.note_id),
+        "content": note.content,
+        "created_at": note.created_at.isoformat(),
+        "updated_at": note.updated_at.isoformat(),
+    }
+
+@router.put("/notes/{note_id}")
+def update_note(note_id: str, req: UpdateNoteRequest, db: Session = Depends(get_db)):
+    note = db.query(CSNote).filter(CSNote.note_id == note_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    note.content = req.content
+    db.commit()
+    db.refresh(note)
+    return {
+        "id": str(note.note_id),
+        "content": note.content,
+        "created_at": note.created_at.isoformat(),
+        "updated_at": note.updated_at.isoformat(),
+    }
+
+@router.delete("/notes/{note_id}")
+def delete_note(note_id: str, db: Session = Depends(get_db)):
+    note = db.query(CSNote).filter(CSNote.note_id == note_id).first()
+    if note:
+        db.delete(note)
+        db.commit()
+    return {"status": "deleted"}
+

@@ -106,8 +106,8 @@ class TicketResponse(BaseModel):
     is_duplicate: bool
     master_ticket_id: Optional[UUID]
     linked_incident_id: Optional[UUID]
-    hil_required: bool
-    hil_trigger_reason: Optional[str]
+    review_required: bool
+    review_trigger_reason: Optional[str]
     pii_detected: bool
     pii_redacted: bool
     ai_disclosure_acknowledged: bool

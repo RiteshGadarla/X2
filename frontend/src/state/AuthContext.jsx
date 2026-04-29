@@ -8,7 +8,7 @@ const FALLBACK_ROLES = [
     { id: 'VP_CUSTOMER_SUCCESS', name: 'VP Customer Success' },
     { id: 'LEGAL_COMPLIANCE', name: 'Legal / Compliance' },
     { id: 'ADMIN_OPS', name: 'Admin / Support Operations' },
-    { id: 'CUSTOMER', name: 'Customer (External Portal)' }
+    { id: 'CUSTOMER', name: 'Customer' }
 ];
 
 const FALLBACK_PERMISSIONS = {

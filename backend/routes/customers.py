@@ -29,3 +29,20 @@ def update_customer(customer_id: UUID, update_data: customer_schemas.CustomerUpd
         return customer_service.update_customer(db, customer_id, update_data)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+import models
+
+@router.put("/{customer_id}", response_model=customer_schemas.CustomerResponse)
+def full_update_customer(customer_id: UUID, update_data: customer_schemas.CustomerUpdate, db: Session = Depends(get_db)):
+    try:
+        return customer_service.update_customer(db, customer_id, update_data)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.delete("/{customer_id}")
+def delete_customer(customer_id: UUID, db: Session = Depends(get_db)):
+    customer = db.query(models.CSCustomer).filter(models.CSCustomer.customer_id == customer_id).first()
+    if not customer: raise HTTPException(status_code=404, detail="Customer not found")
+    db.delete(customer)
+    db.commit()
+    return {"status": "deleted"}

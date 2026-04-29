@@ -1,20 +1,25 @@
 -- =============================================================================
--- X2 Dashboard – PostgreSQL DDL (reset schema)
--- Legacy RBAC/mock tables + CSAgent production schema (BRD-021)
+-- X2 Dashboard – PostgreSQL DDL  (v6.0 – Production-Ready Schema)
+-- Aligned 1:1 with backend/models.py & schemas/enums.py
+-- Idempotent: DROP CASCADE → clean re-create on every seed run.
+-- =============================================================================
 
 -- Reset the public schema to ensure a clean slate before recreating tables
 DROP SCHEMA IF EXISTS public CASCADE;
 CREATE SCHEMA public;
 SET search_path TO public;
+
+-- =============================================================================
+-- PART 1:  LEGACY / RBAC TABLES  (Dashboard UI support)
 -- =============================================================================
 
--- Legacy RBAC / mock tables ───────────────────────────────────────────────
-
+-- ─── 1. Roles ────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS roles (
     id      VARCHAR(50)  PRIMARY KEY,
     name    VARCHAR(100) NOT NULL
 );
 
+-- ─── 2. Role Permissions ─────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS role_permissions (
     id          SERIAL       PRIMARY KEY,
     role_id     VARCHAR(50)  NOT NULL,
@@ -22,11 +27,13 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     CONSTRAINT uq_role_permission UNIQUE (role_id, permission)
 );
 
+-- ─── 3. Metrics ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS metrics (
     role_id  VARCHAR(50) PRIMARY KEY,
     data     JSONB       NOT NULL
 );
 
+-- ─── 4. Tickets (Legacy) ─────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS tickets (
     id              VARCHAR(20)  PRIMARY KEY,
     customer        VARCHAR(100),
@@ -38,6 +45,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     sentiment       VARCHAR(20)
 );
 
+-- ─── 5. Ticket Updates (Legacy) ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS ticket_updates (
     id           SERIAL       PRIMARY KEY,
     ticket_id    VARCHAR(20)  NOT NULL,
@@ -48,7 +56,8 @@ CREATE TABLE IF NOT EXISTS ticket_updates (
 );
 CREATE INDEX IF NOT EXISTS idx_ticket_updates_ticket_id ON ticket_updates(ticket_id);
 
-CREATE TABLE IF NOT EXISTS hil_queue (
+-- ─── 6. Review Queue (Legacy) ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS review_queue (
     id               VARCHAR(20) PRIMARY KEY,
     ticket_id        VARCHAR(20),
     checkpoint_type  VARCHAR(50),
@@ -56,6 +65,7 @@ CREATE TABLE IF NOT EXISTS hil_queue (
     customer_tier    VARCHAR(20)
 );
 
+-- ─── 7. KB Stats (singleton) ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS kb_stats (
     id              SERIAL       PRIMARY KEY,
     usage_rate      VARCHAR(10),
@@ -64,6 +74,7 @@ CREATE TABLE IF NOT EXISTS kb_stats (
     top_gap         VARCHAR(100)
 );
 
+-- ─── 8. Voice of Customer (singleton) ────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS voc (
     id               SERIAL      PRIMARY KEY,
     csat_trend       VARCHAR(10),
@@ -71,6 +82,7 @@ CREATE TABLE IF NOT EXISTS voc (
     feature_requests JSONB
 );
 
+-- ─── 9. Channel Volume (singleton) ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS channel_volume (
     id         SERIAL      PRIMARY KEY,
     email      INTEGER,
@@ -81,16 +93,18 @@ CREATE TABLE IF NOT EXISTS channel_volume (
     peak_hour  VARCHAR(20)
 );
 
+-- ─── 10. Legal Overview (singleton) ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS legal_overview (
-    id                  SERIAL      PRIMARY KEY,
-    active_cases        INTEGER,
-    pending_approvals   INTEGER,
-    blocked_comms       INTEGER,
-    avg_hil_turnaround  VARCHAR(20),
-    weekly_flags        JSONB,
-    case_breakdown      JSONB
+    id                    SERIAL      PRIMARY KEY,
+    active_cases          INTEGER,
+    pending_approvals     INTEGER,
+    blocked_comms         INTEGER,
+    avg_review_turnaround VARCHAR(20),
+    weekly_flags          JSONB,
+    case_breakdown        JSONB
 );
 
+-- ─── 11. Customer Portal (singleton) ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS customer_portal (
     id            SERIAL PRIMARY KEY,
     product_areas JSONB,
@@ -99,6 +113,7 @@ CREATE TABLE IF NOT EXISTS customer_portal (
     linked_kb     JSONB
 );
 
+-- ─── 12. Activity Logs ───────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS activity_logs (
     id          VARCHAR(20) PRIMARY KEY,
     time        VARCHAR(10),
@@ -109,11 +124,11 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 );
 
 -- =============================================================================
--- CSAgent production schema  (BRD-021)
--- All tables prefixed with "cs_" to avoid collision with legacy tables.
+-- PART 2:  CSAgent PRODUCTION SCHEMA  (BRD-021)
+-- All tables use the "cs_" prefix to avoid collisions.
 -- =============================================================================
 
--- ─── 1. Users (internal staff) ───────────────────────────────────────────────
+-- ─── P1. Users (internal staff) ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_users (
     user_id     UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     name        VARCHAR(255) NOT NULL,
@@ -124,7 +139,7 @@ CREATE TABLE IF NOT EXISTS cs_users (
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- ─── 2. Customers (external) ─────────────────────────────────────────────────
+-- ─── P2. Customers (external) ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_customers (
     customer_id                 UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     name                        VARCHAR(255) NOT NULL,
@@ -142,7 +157,7 @@ CREATE TABLE IF NOT EXISTS cs_customers (
     updated_at                  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- ─── 3. SLA Configurations ───────────────────────────────────────────────────
+-- ─── P3. SLA Configurations ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_sla_configs (
     sla_config_id           UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_tier           VARCHAR(20)  NOT NULL,
@@ -157,8 +172,7 @@ CREATE TABLE IF NOT EXISTS cs_sla_configs (
     CONSTRAINT uq_sla_tier_priority UNIQUE (customer_tier, priority)
 );
 
-
--- ─── 4. Incidents (synced from SRE Agent / ITSM) ─────────────────────────────
+-- ─── P4. Incidents (synced from SRE Agent / ITSM) ───────────────────────────
 CREATE TABLE IF NOT EXISTS cs_incidents (
     incident_id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     external_incident_id    VARCHAR(255) UNIQUE,
@@ -172,7 +186,7 @@ CREATE TABLE IF NOT EXISTS cs_incidents (
     updated_at              TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- ─── 5. KB Articles (defined before cs_tickets for FK reference) ──────────────
+-- ─── P5. KB Articles (defined before cs_tickets for FK reference) ────────────
 CREATE TABLE IF NOT EXISTS cs_kb_articles (
     article_id                  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     title                       VARCHAR(500) NOT NULL,
@@ -191,14 +205,14 @@ CREATE TABLE IF NOT EXISTS cs_kb_articles (
     updated_at                  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- ─── 6. Tickets ──────────────────────────────────────────────────────────────
+-- ─── P6. Tickets ─────────────────────────────────────────────────────────────
 /*
   Status state machine:
   new → acknowledged → in_triage → routed → in_progress
       → pending_customer → resolution_proposed → resolved
       → customer_confirmed → closed
 
-  Rule: P1/P2 tickets cannot close without customer_confirmed or HIL-3 override.
+  Rule: P1/P2 tickets cannot close without customer_confirmed or Review override.
 */
 CREATE TABLE IF NOT EXISTS cs_tickets (
     ticket_id                   UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -240,8 +254,8 @@ CREATE TABLE IF NOT EXISTS cs_tickets (
     master_ticket_id            UUID REFERENCES cs_tickets(ticket_id),
     linked_incident_id          UUID REFERENCES cs_incidents(incident_id),
 
-    hil_required                BOOLEAN        NOT NULL DEFAULT FALSE,
-    hil_trigger_reason          VARCHAR(50),
+    review_required             BOOLEAN        NOT NULL DEFAULT FALSE,
+    review_trigger_reason       VARCHAR(50),
 
     pii_detected                BOOLEAN        NOT NULL DEFAULT FALSE,
     pii_redacted                BOOLEAN        NOT NULL DEFAULT FALSE,
@@ -262,18 +276,18 @@ CREATE INDEX IF NOT EXISTS ix_cs_tickets_account_tier ON cs_tickets(account_tier
 CREATE INDEX IF NOT EXISTS ix_cs_tickets_sla_due      ON cs_tickets(sla_resolution_due)
     WHERE status NOT IN ('closed','customer_confirmed');
 
--- ─── 7. KB Article ↔ Ticket (source mapping) ─────────────────────────────────
+-- ─── P7. KB Article ↔ Ticket (source mapping) ───────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_kb_article_tickets (
     article_id  UUID NOT NULL REFERENCES cs_kb_articles(article_id) ON DELETE CASCADE,
     ticket_id   UUID NOT NULL REFERENCES cs_tickets(ticket_id)      ON DELETE CASCADE,
     PRIMARY KEY (article_id, ticket_id)
 );
 
--- ─── 8. HIL Reviews ──────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS cs_hil_reviews (
-    hil_id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+-- ─── P8. Reviews (Manual Review Board) ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS cs_reviews (
+    review_id       UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     ticket_id       UUID        NOT NULL REFERENCES cs_tickets(ticket_id),
-    checkpoint_type VARCHAR(10) NOT NULL,  -- HIL-1|HIL-3|HIL-4|HIL-5
+    checkpoint_type VARCHAR(10) NOT NULL,  -- Review-1|Review-3|Review-4|Review-5
     trigger_reason  VARCHAR(50) NOT NULL,  -- billing|legal|vip|angry_sentiment|sla_breach|kb_publication|config_review|critical_escalation
     status          VARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending|approved|rejected|taken_ownership|modified
     reviewer_id     UUID REFERENCES cs_users(user_id),
@@ -284,10 +298,10 @@ CREATE TABLE IF NOT EXISTS cs_hil_reviews (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS ix_cs_hil_reviews_ticket_id ON cs_hil_reviews(ticket_id);
-CREATE INDEX IF NOT EXISTS ix_cs_hil_reviews_status    ON cs_hil_reviews(status);
+CREATE INDEX IF NOT EXISTS ix_cs_reviews_ticket_id ON cs_reviews(ticket_id);
+CREATE INDEX IF NOT EXISTS ix_cs_reviews_status    ON cs_reviews(status);
 
--- ─── 9. Communication Logs ───────────────────────────────────────────────────
+-- ─── P9. Communication Logs ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_communication_logs (
     comm_id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     ticket_id           UUID        NOT NULL REFERENCES cs_tickets(ticket_id),
@@ -307,7 +321,7 @@ CREATE TABLE IF NOT EXISTS cs_communication_logs (
 CREATE INDEX IF NOT EXISTS ix_cs_comm_logs_ticket_id  ON cs_communication_logs(ticket_id);
 CREATE INDEX IF NOT EXISTS ix_cs_comm_logs_created_at ON cs_communication_logs(created_at);
 
--- ─── 10. CSAT Surveys ────────────────────────────────────────────────────────
+-- ─── P10. CSAT Surveys ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_csat_surveys (
     csat_id       UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     ticket_id     UUID        UNIQUE NOT NULL REFERENCES cs_tickets(ticket_id),
@@ -321,7 +335,7 @@ CREATE TABLE IF NOT EXISTS cs_csat_surveys (
 
 CREATE INDEX IF NOT EXISTS ix_cs_csat_customer_id ON cs_csat_surveys(customer_id);
 
--- ─── 11. SLA Alerts ──────────────────────────────────────────────────────────
+-- ─── P11. SLA Alerts ─────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_sla_alerts (
     alert_id        UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     ticket_id       UUID        NOT NULL REFERENCES cs_tickets(ticket_id),
@@ -335,7 +349,7 @@ CREATE TABLE IF NOT EXISTS cs_sla_alerts (
 
 CREATE INDEX IF NOT EXISTS ix_cs_sla_alerts_ticket_id ON cs_sla_alerts(ticket_id);
 
--- ─── 12. Audit Logs (append-only) ────────────────────────────────────────────
+-- ─── P12. Audit Logs (append-only) ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_audit_logs (
     audit_id    UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     entity_type VARCHAR(100) NOT NULL,
@@ -352,7 +366,7 @@ CREATE TABLE IF NOT EXISTS cs_audit_logs (
 CREATE INDEX IF NOT EXISTS ix_cs_audit_entity    ON cs_audit_logs(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS ix_cs_audit_timestamp ON cs_audit_logs(timestamp);
 
--- ─── 13. Reports ─────────────────────────────────────────────────────────────
+-- ─── P13. Reports ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_reports (
     report_id     UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     report_type   VARCHAR(50) NOT NULL,  -- daily_digest|weekly_sla|weekly_csat|ticket_ageing|monthly_voc
@@ -363,7 +377,15 @@ CREATE TABLE IF NOT EXISTS cs_reports (
     generated_by  VARCHAR(20) NOT NULL DEFAULT 'system'
 );
 
--- ─── 14. Channel Configurations ──────────────────────────────────────────────
+-- ─── P13b. Notes ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS cs_notes (
+    note_id       UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    content       TEXT        NOT NULL,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ─── P14. Channel Configurations ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_channel_configs (
     channel_config_id   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     channel             VARCHAR(20) UNIQUE NOT NULL,
@@ -375,10 +397,10 @@ CREATE TABLE IF NOT EXISTS cs_channel_configs (
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ─── 15. Communication Templates ─────────────────────────────────────────────
+-- ─── P15. Communication Templates ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cs_communication_templates (
     template_id   UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-    name          VARCHAR(255) NOT NULL,
+    name          VARCHAR(255) UNIQUE NOT NULL,
     ticket_type   VARCHAR(50),
     customer_tier VARCHAR(20),
     channel       VARCHAR(20),

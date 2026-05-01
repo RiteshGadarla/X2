@@ -38,8 +38,8 @@ const KBPanel = () => {
                 <strong>Top KB Gap:</strong> {stats.top_gap}
             </div>
             <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
-                <button id="kb_review_drafts_btn" className="btn btn-sm btn-primary" onClick={() => emitMockAction('KB drafts opened', 'Mock queue filtered to pending review articles.')}>Review Drafts</button>
-                <button id="kb_create_new_btn" className="btn btn-sm btn-outline" onClick={() => emitMockAction('New KB draft created', 'Mock editor initialized with incident template.', 'success')}>Create Article</button>
+                <button id="kb_review_drafts_btn" data-testid="kb-review-drafts-btn" data-tour="kb-review-drafts" className="btn btn-sm btn-primary" onClick={() => emitMockAction('KB drafts opened', 'Mock queue filtered to pending review articles.')}>Review Drafts</button>
+                <button id="kb_create_new_btn" data-testid="kb-create-article-btn" className="btn btn-sm btn-outline" onClick={() => emitMockAction('New KB draft created', 'Mock editor initialized with incident template.', 'success')}>Create Article</button>
             </div>
         </div>
     );

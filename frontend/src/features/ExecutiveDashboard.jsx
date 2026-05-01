@@ -48,6 +48,8 @@ const ExecutiveDashboard = () => {
             <div style={{ marginTop: '24px' }}>
                 <button
                     id="exec_export_rollup_btn"
+                    data-testid="exec-export-rollup-btn"
+                    data-tour="exec-export-rollup"
                     className="btn btn-sm btn-primary"
                     onClick={() => emitMockAction('Executive rollup downloaded', 'Mock R-01 digest generated with SLA and CSAT summary.', 'success')}
                 >

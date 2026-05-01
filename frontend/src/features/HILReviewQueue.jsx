@@ -71,15 +71,15 @@ const ReviewQueue = () => {
                             <span style={{ fontSize: '10px', color: 'var(--neutral-5)' }}>Waiting for {q.age || 'a while'}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                            <button id={`review_approve_${q.review_id || q.ticket_id}_btn`} className="btn btn-sm btn-primary" onClick={() => emitMockAction(`Approved ${q.ticket_id}`, 'Mock decision logged to ITSM.', 'success')}>Approve</button>
-                            <button id={`review_modify_${q.review_id || q.ticket_id}_btn`} className="btn btn-sm btn-secondary" onClick={() => emitMockAction(`Modify requested for ${q.ticket_id}`, 'Mock edit workflow sent to assigned agent.')}>Modify</button>
-                            <button id={`review_reject_${q.review_id || q.ticket_id}_btn`} className="btn btn-sm btn-ghost" onClick={() => emitMockAction(`Rejected ${q.ticket_id}`, 'Mock rejection reason captured for audit.', 'warning')}>Reject</button>
+                            <button id={`review_approve_${q.review_id || q.ticket_id}_btn`} data-testid={`review-approve-${q.review_id || q.ticket_id}-btn`} className="btn btn-sm btn-primary" onClick={() => emitMockAction(`Approved ${q.ticket_id}`, 'Mock decision logged to ITSM.', 'success')}>Approve</button>
+                            <button id={`review_modify_${q.review_id || q.ticket_id}_btn`} data-testid={`review-modify-${q.review_id || q.ticket_id}-btn`} className="btn btn-sm btn-secondary" onClick={() => emitMockAction(`Modify requested for ${q.ticket_id}`, 'Mock edit workflow sent to assigned agent.')}>Modify</button>
+                            <button id={`review_reject_${q.review_id || q.ticket_id}_btn`} data-testid={`review-reject-${q.review_id || q.ticket_id}-btn`} className="btn btn-sm btn-ghost" onClick={() => emitMockAction(`Rejected ${q.ticket_id}`, 'Mock rejection reason captured for audit.', 'warning')}>Reject</button>
                         </div>
                     </div>
                 ))}
             </div>
             <div style={{ marginTop: '16px' }}>
-                <button id="review_approve_all_btn" className="btn btn-sm btn-outline" onClick={() => emitMockAction('Bulk approval executed', 'Mock standard escalations approved in queue.', 'success')}>Bulk Approve Standard Escapes</button>
+                <button id="review_approve_all_btn" data-testid="review-bulk-approve-btn" data-tour="review-bulk-approve" className="btn btn-sm btn-outline" onClick={() => emitMockAction('Bulk approval executed', 'Mock standard escalations approved in queue.', 'success')}>Bulk Approve Standard Escapes</button>
             </div>
         </div>
     );

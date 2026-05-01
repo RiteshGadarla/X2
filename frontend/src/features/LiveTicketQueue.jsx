@@ -164,6 +164,7 @@ const LiveTicketQueue = () => {
                                 <td style={{ padding: '10px 12px' }}>
                                     <button
                                         id={`tickets_view_${t.id}_btn`}
+                                        data-testid={`ticket-review-${t.id}-btn`}
                                         className="btn btn-sm btn-outline"
                                         onClick={() => emitMockAction(`Opened ${t.id}`, `Mock ticket review started for ${t.customer}.`)}
                                     >

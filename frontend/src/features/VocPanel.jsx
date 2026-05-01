@@ -67,6 +67,8 @@ const VocPanel = () => {
             <div style={{ marginTop: '24px' }}>
                 <button
                     id="voc_export_report_btn"
+                    data-testid="voc-export-report-btn"
+                    data-tour="voc-export-report"
                     className="btn btn-sm btn-ghost"
                     onClick={() => emitMockAction('VoC report exported', 'Mock monthly VoC packet delivered to Product and CX leadership.', 'success')}
                 >

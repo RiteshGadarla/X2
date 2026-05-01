@@ -37,6 +37,7 @@ const ReportingCenterWindow = ({ onClose, isMaximized, onMinimize, onMaximize, z
     return (
         <AppWindow
             title="Reporting Center"
+            testId="reporting-center-window"
             isMaximized={isMaximized}
             onClose={onClose}
             onMinimize={onMinimize}
@@ -57,6 +58,9 @@ const ReportingCenterWindow = ({ onClose, isMaximized, onMinimize, onMaximize, z
                             borderRadius: '8px', cursor: (loading || reports.length === 0) ? 'not-allowed' : 'pointer', fontWeight: '600',
                             transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(239, 68, 68, 0.3)'
                         }}
+                        id="reports_clear_btn"
+                        data-testid="reports-clear-btn"
+                        data-tour="reports-clear"
                     >
                         {loading ? 'Clearing...' : 'Clear Reports'}
                     </button>

@@ -219,6 +219,8 @@ const UbuntuDock = ({ onAppClick }) => {
                         onMouseLeave={() => setHovered(null)}
                         onClick={() => launchOffice(app.label, app.url)}
                         title={app.label}
+                        id={`dock_${app.label.toLowerCase()}_btn`}
+                        data-testid={`dock-${app.label.toLowerCase()}-btn`}
                     >
                         {app.icon}
                     </button>
@@ -238,6 +240,9 @@ const UbuntuDock = ({ onAppClick }) => {
                     onMouseLeave={() => setHovered(null)}
                     onClick={handleAppClick}
                     title="aegis.ai — Open Customer Portal"
+                    id="dock_aegis_btn"
+                    data-testid="dock-aegis-btn"
+                    data-tour="dock-aegis"
                 >
                     <AppDockIcon />
                 </button>
@@ -327,6 +332,8 @@ const LoginWindow = ({ roles, onLogin, loading, error, selectedId, setSelectedId
                 <div style={{ width: '100%' }}>
                     <select
                         id="global_select_role_dropdown"
+                        data-testid="login-role-select"
+                        data-tour="login-role-select"
                         value={selectedId}
                         onChange={e => setSelectedId(e.target.value)}
                         disabled={loading}
@@ -348,6 +355,8 @@ const LoginWindow = ({ roles, onLogin, loading, error, selectedId, setSelectedId
 
                 <button
                     id="global_login_btn"
+                    data-testid="login-submit-btn"
+                    data-tour="login-submit"
                     onClick={() => selectedId && onLogin(selectedId)}
                     disabled={!selectedId || loading}
                     style={{

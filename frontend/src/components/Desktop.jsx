@@ -1,8 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import {
-    Ticket, Users, UserRound, TrendingUp, Settings, Scale
-} from 'lucide-react';
 import { useAuth } from '../state/auth-context';
 import { ProtectedComponent } from '../rbac/ProtectedComponent';
 import MainLayout from '../layouts/MainLayout';
@@ -24,24 +21,66 @@ const DesktopClock = () => {
         const t = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(t);
     }, []);
+
+    const fmtTime = (tz) => now.toLocaleTimeString('en-GB', {
+        timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    const fmtDay = (tz) => now.toLocaleDateString('en-US', {
+        timeZone: tz, weekday: 'short'
+    });
+    const fmtDate = (tz) => now.toLocaleDateString('en-US', {
+        timeZone: tz, month: 'short', day: 'numeric', year: 'numeric'
+    });
+
+    const Zone = ({ label, tz }) => (
+        <div style={{ textAlign: 'center', minWidth: '170px' }}>
+            <div style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.2em',
+                opacity: 0.6,
+                textTransform: 'uppercase',
+                marginBottom: '6px'
+            }}>{label}</div>
+            <div style={{
+                fontSize: '56px',
+                fontWeight: 200,
+                lineHeight: 1,
+                fontVariantNumeric: 'tabular-nums',
+                letterSpacing: '0.02em'
+            }}>{fmtTime(tz)}</div>
+            <div style={{
+                fontSize: '13px',
+                fontWeight: 500,
+                opacity: 0.75,
+                marginTop: '10px',
+                letterSpacing: '0.05em'
+            }}>
+                {fmtDay(tz)} · {fmtDate(tz)}
+            </div>
+        </div>
+    );
+
     return (
         <div style={{
             position: 'absolute',
             top: '40px',
             right: '60px',
-            textAlign: 'right',
             color: 'white',
             zIndex: 0,
             textShadow: '0 4px 12px rgba(0,0,0,0.3)',
             pointerEvents: 'none',
-            userSelect: 'none'
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'stretch',
+            gap: '28px'
         }}>
-            <div style={{ fontSize: '72px', fontWeight: '200', lineHeight: 1 }}>
-                {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-            </div>
-            <div style={{ fontSize: '24px', fontWeight: '400', opacity: 0.8, marginTop: '8px' }}>
-                {now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
-            </div>
+            <Zone label="GMT" tz="UTC" />
+            <div style={{
+                width: '1px',
+                background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent)'
+            }} />
+            <Zone label="IST" tz="Asia/Kolkata" />
         </div>
     );
 };
@@ -60,66 +99,6 @@ const ROLE_DEFAULT_ROUTES = {
     LEGAL_COMPLIANCE: '/legal',
     ADMIN_OPS: '/admin',
     CUSTOMER: '/customer',
-};
-
-const ROLE_INFO = {
-    SUPPORT_LEAD: { label: 'Support Lead', desc: 'Ticket triage, SLA tracking & review', color: '#6B8EF0', Icon: Ticket },
-    SUPPORT_MANAGER: { label: 'Support Manager', desc: 'Team oversight, sentiment & KB publishing', color: '#5929d0', Icon: Users },
-    VP_CUSTOMER_SUCCESS: { label: 'VP Customer Success', desc: 'Executive dashboard, VoC & override controls', color: '#A855F7', Icon: TrendingUp },
-    LEGAL_COMPLIANCE: { label: 'Legal & Compliance', desc: 'Legal queue, comms gating & audit logs', color: '#01CAB8', Icon: Scale },
-    ADMIN_OPS: { label: 'Admin Ops', desc: 'Integrations, channel health & diagnostics', color: '#8B5CF6', Icon: Settings },
-    CUSTOMER: { label: 'Customer', desc: 'Submit tickets, track status & view your portal', color: '#CF008B', Icon: UserRound },
-};
-
-/* ── Welcome screen shown inside aegis window when no role ── */
-const WelcomeScreen = () => {
-    const { rolesList, setRole } = useAuth();
-
-    return (
-        <div className="welcome-screen">
-            <div className="welcome-hero">
-                <div className="welcome-shield">
-                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
-                        <path d="M12 2L4 6v6c0 5.5 3.5 10 8 12 4.5-2 8-6.5 8-12V6z" />
-                    </svg>
-                </div>
-                <h1 className="welcome-title">Welcome to aegis.ai</h1>
-                <p className="welcome-sub">Select your role profile to get started</p>
-            </div>
-
-            <div className="welcome-role-grid">
-                {rolesList.map((r) => {
-                    const info = ROLE_INFO[r.id] || { label: r.name, desc: '', color: '#5929d0', Icon: Users };
-                    const { Icon } = info;
-                    return (
-                        <button
-                            key={r.id}
-                            className="welcome-role-card"
-                            onClick={() => setRole(r.id)}
-                        >
-                            <div
-                                className="role-card-icon"
-                                style={{ background: info.color + '18', color: info.color }}
-                            >
-                                <Icon size={22} />
-                            </div>
-                            <div className="role-card-text">
-                                <div className="role-card-name">{info.label}</div>
-                                <div className="role-card-desc">{info.desc}</div>
-                            </div>
-                            <svg
-                                className="role-card-arrow"
-                                width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                            >
-                                <path d="M5 12h14M13 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    );
-                })}
-            </div>
-        </div>
-    );
 };
 
 /* ── Route helpers ── */
@@ -155,13 +134,13 @@ const AegisApp = () => {
     return (
         <MainLayout>
             <Routes>
-                <Route path="/" element={<WelcomeScreen />} />
-                <Route path="/support-lead" element={<Dashboard />} />
-                <Route path="/support-manager" element={<Dashboard />} />
-                <Route path="/vp" element={<Dashboard />} />
-                <Route path="/legal" element={<Dashboard />} />
-                <Route path="/admin" element={<Dashboard />} />
-                <Route path="/customer" element={<Dashboard />} />
+                <Route path="/" element={<Navigate to="/support-lead" replace />} />
+                <Route path="/support-lead" element={<div className="route-page"><Dashboard /></div>} />
+                <Route path="/support-manager" element={<div className="route-page"><Dashboard /></div>} />
+                <Route path="/vp" element={<div className="route-page"><Dashboard /></div>} />
+                <Route path="/legal" element={<div className="route-page"><Dashboard /></div>} />
+                <Route path="/admin" element={<div className="route-page"><Dashboard /></div>} />
+                <Route path="/customer" element={<div className="route-page"><Dashboard /></div>} />
 
                 <Route path="/support-lead/tickets" element={<P permission="VIEW_TICKETS"><LiveTicketQueue /></P>} />
                 <Route path="/support-lead/sla" element={<P permission="VIEW_SLA"><SLACompliance /></P>} />
@@ -212,6 +191,7 @@ const Desktop = () => {
         setAegisMinimized(false);
         setAegisMaximized(true);
         setActiveApp('aegis');
+        setRole('SUPPORT_LEAD');
     };
 
     const closeAegis = () => {
@@ -325,22 +305,67 @@ const Desktop = () => {
             {/* Background glows */}
             <div className="desktop-glows" />
 
-            {/* Wavy decorative lines */}
-            <svg className="desktop-waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            {/* Mesh gradient wallpaper + subtle support motifs */}
+            <svg className="desktop-wallpaper" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
                 <defs>
-                    <linearGradient id="wg1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#bae6fd" />
-                        <stop offset="100%" stopColor="#0ea5e9" />
-                    </linearGradient>
-                    <linearGradient id="wg2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#06b6d4" />
-                        <stop offset="100%" stopColor="#7dd3fc" />
-                    </linearGradient>
+                    <radialGradient id="orb1" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.55" />
+                        <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="orb2" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.55" />
+                        <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="orb3" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.45" />
+                        <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="orb4" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="orb5" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.40" />
+                        <stop offset="100%" stopColor="#14b8a6" stopOpacity="0" />
+                    </radialGradient>
+                    <filter id="meshBlur" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="80" />
+                    </filter>
+                    <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+                        <circle cx="1" cy="1" r="1" fill="#ffffff" opacity="0.05" />
+                    </pattern>
                 </defs>
-                <path d="M-100,200 C200,100 400,300 700,180 S1100,60 1400,200 S1900,320 2200,200" fill="none" stroke="url(#wg1)" strokeWidth="1.5" opacity="0.18" />
-                <path d="M-100,400 C200,280 450,520 750,380 S1150,240 1500,400 S1900,520 2200,400" fill="none" stroke="url(#wg2)" strokeWidth="1.5" opacity="0.15" />
-                <path d="M-100,600 C250,480 500,700 800,560 S1200,420 1550,600 S1950,720 2250,600" fill="none" stroke="url(#wg1)" strokeWidth="1" opacity="0.12" />
-                <path d="M-100,100 C300,40  550,160 850,80  S1250,0   1600,100 S2000,180 2300,100" fill="none" stroke="url(#wg2)" strokeWidth="1" opacity="0.10" />
+
+                {/* Mesh gradient orbs (heavily blurred, blended) */}
+                <g filter="url(#meshBlur)">
+                    <circle cx="180" cy="180" r="320" fill="url(#orb2)" />
+                    <circle cx="1260" cy="160" r="380" fill="url(#orb1)" />
+                    <circle cx="320" cy="780" r="360" fill="url(#orb3)" />
+                    <circle cx="1180" cy="760" r="340" fill="url(#orb5)" />
+                    <circle cx="760" cy="460" r="420" fill="url(#orb4)" />
+                </g>
+
+                {/* Soft dot grid for texture */}
+                <rect x="0" y="0" width="1440" height="900" fill="url(#dots)" />
+
+                {/* Subtle support motif — concentric "signal" rings */}
+                <g stroke="#7dd3fc" fill="none" opacity="0.10">
+                    <circle cx="1180" cy="720" r="60" strokeWidth="1" />
+                    <circle cx="1180" cy="720" r="120" strokeWidth="1" />
+                    <circle cx="1180" cy="720" r="190" strokeWidth="1" />
+                    <circle cx="1180" cy="720" r="270" strokeWidth="1" />
+                </g>
+                <g stroke="#a5b4fc" fill="none" opacity="0.08">
+                    <circle cx="220" cy="220" r="70" strokeWidth="1" />
+                    <circle cx="220" cy="220" r="140" strokeWidth="1" />
+                    <circle cx="220" cy="220" r="220" strokeWidth="1" />
+                </g>
+
+                {/* Faint chat-bubble silhouettes (support theme, very subtle) */}
+                <g fill="#ffffff" opacity="0.04">
+                    <path d="M880,640 q0,-40 40,-40 l140,0 q40,0 40,40 l0,60 q0,40 -40,40 l-90,0 l-30,28 l0,-28 l-20,0 q-40,0 -40,-40 z" />
+                    <path d="M340,420 q0,-32 32,-32 l110,0 q32,0 32,32 l0,48 q0,32 -32,32 l-72,0 l-24,22 l0,-22 l-14,0 q-32,0 -32,-32 z" />
+                </g>
             </svg>
 
             {/* Reporting Center window */}
@@ -371,6 +396,7 @@ const Desktop = () => {
             {aegisOpen && !aegisMinimized && (
                 <AppWindow
                     title="aegis.ai — Customer Intelligence Platform"
+                    testId="aegis-window"
                     isMaximized={aegisMaximized}
                     onClose={closeAegis}
                     onMinimize={() => setAegisMinimized(true)}

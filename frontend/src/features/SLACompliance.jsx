@@ -48,6 +48,8 @@ const SLACompliance = () => {
             <div style={{ marginTop: '24px' }}>
                 <button
                     id="sla_export_report_btn"
+                    data-testid="sla-export-report-btn"
+                    data-tour="sla-export-report"
                     className="btn btn-sm btn-ghost"
                     onClick={() => emitMockAction('SLA report exported', 'Mock CSV and dashboard snapshot sent to email.', 'success')}
                 >

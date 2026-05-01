@@ -108,9 +108,12 @@ const AppSidebar = () => {
                             <button
                                 key={item.route}
                                 type="button"
+                                id={`nav_${item.label.toLowerCase().replace(/\s+/g, '_')}_btn`}
                                 className={`sidebar-item${active ? ' active' : ''}`}
                                 onClick={() => navigate(item.route)}
                                 data-label={item.label}
+                                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                data-tour={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                             >
                                 <Icon size={20} />
                             </button>
@@ -130,6 +133,9 @@ const AppSidebar = () => {
                     onClick={openPanel}
                     data-label={role ? `Role: ${role.replace(/_/g, ' ')}` : 'Select Role'}
                     style={{ marginBottom: '4px' }}
+                    id="sidebar_role_switcher_btn"
+                    data-testid="role-switcher-btn"
+                    data-tour="role-switcher"
                 >
                     {role ? (
                         <span className="sidebar-role-avatar" style={{ background: roleColor }}>
@@ -163,6 +169,8 @@ const AppSidebar = () => {
                                     setShowPanel(false);
                                     if (firstRoute) navigate(firstRoute);
                                 }}
+                                id={`sidebar_role_option_${r.id.toLowerCase()}_btn`}
+                                data-testid={`role-option-${r.id.toLowerCase().replace(/_/g, '-')}`}
                             >
                                 <span
                                     className="role-option-dot"

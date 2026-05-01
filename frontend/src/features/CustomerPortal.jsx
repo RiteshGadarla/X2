@@ -104,7 +104,7 @@ const CustomerPortal = () => {
                     You are being assisted by an AI-powered Customer Support Agent. Human support specialists are always available for escalation.
                 </div>
                 <label style={{ fontSize: '11px', color: 'var(--neutral-2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
+                    <input type="checkbox" id="portal_ai_acknowledge_checkbox" data-testid="portal-ai-acknowledge" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
                     I understand and want to continue
                 </label>
             </div>
@@ -119,18 +119,21 @@ const CustomerPortal = () => {
                         placeholder="Brief summary of the issue"
                         value={form.title}
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
+                        id="ticket_title_input"
+                        data-testid="ticket-title-input"
+                        data-tour="ticket-title-input"
                     />
                 </div>
                 <div className="layout-form-grid">
                     <div className="layout-form-field">
                         <label className="layout-form-label">Product Area</label>
-                        <select className="input-demo" value={form.product_area} onChange={(e) => setForm({ ...form, product_area: e.target.value })}>
+                        <select className="input-demo" id="ticket_product_area_select" data-testid="ticket-product-area-select" value={form.product_area} onChange={(e) => setForm({ ...form, product_area: e.target.value })}>
                             {portalData.product_areas.map((entry) => <option key={entry}>{entry}</option>)}
                         </select>
                     </div>
                     <div className="layout-form-field">
                         <label className="layout-form-label">Issue Type</label>
-                        <select className="input-demo" value={form.issue_type} onChange={(e) => setForm({ ...form, issue_type: e.target.value })}>
+                        <select className="input-demo" id="ticket_issue_type_select" data-testid="ticket-issue-type-select" value={form.issue_type} onChange={(e) => setForm({ ...form, issue_type: e.target.value })}>
                             {portalData.issue_types.map((entry) => <option key={entry}>{entry}</option>)}
                         </select>
                     </div>
@@ -143,6 +146,8 @@ const CustomerPortal = () => {
                         placeholder="Describe the issue, error message, and expected behavior."
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        id="ticket_description_textarea"
+                        data-testid="ticket-description-textarea"
                     />
                 </div>
                 <div className="layout-form-field">
@@ -153,13 +158,15 @@ const CustomerPortal = () => {
                         placeholder="Describe user or revenue impact."
                         value={form.business_impact}
                         onChange={(e) => setForm({ ...form, business_impact: e.target.value })}
+                        id="ticket_business_impact_textarea"
+                        data-testid="ticket-business-impact-textarea"
                     />
                 </div>
                 <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
-                    <button className="btn btn-sm btn-primary" disabled={!acknowledged || isSubmitting} onClick={submitTicket}>
+                    <button className="btn btn-sm btn-primary" id="ticket_submit_btn" data-testid="ticket-submit-btn" data-tour="ticket-submit" disabled={!acknowledged || isSubmitting} onClick={submitTicket}>
                         {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
                     </button>
-                    <button className="btn btn-sm btn-ghost" onClick={() => emitMockAction('Attachment flow opened', 'Mock file upload dialog prepared.')}>Attach Evidence</button>
+                    <button className="btn btn-sm btn-ghost" id="ticket_attach_evidence_btn" data-testid="ticket-attach-btn" onClick={() => emitMockAction('Attachment flow opened', 'Mock file upload dialog prepared.')}>Attach Evidence</button>
                 </div>
             </div>
 

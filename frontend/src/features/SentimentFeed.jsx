@@ -52,9 +52,10 @@ const SentimentFeed = () => {
                             <span style={{ fontSize: '10px', fontWeight: '700', color: getSentimentColor(t.sentiment) }}>
                                 {t.sentiment.toUpperCase()}
                             </span>
-                            { (t.sentiment === 'Angry' || t.sentiment === 'Frustrated') && 
+                            { (t.sentiment === 'Angry' || t.sentiment === 'Frustrated') &&
                                 <button
                                     id={`sentiment_escalate_${t.id}_btn`}
+                                    data-testid={`sentiment-intervene-${t.id}-btn`}
                                     className="btn btn-sm btn-primary"
                                     onClick={() => emitMockAction(`Intervention triggered for ${t.id}`, 'Mock escalation task assigned to support manager.', 'warning')}
                                 >

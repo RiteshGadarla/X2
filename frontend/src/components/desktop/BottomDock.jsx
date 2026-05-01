@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DownloadIcon, NotesIcon, AegisDockIcon } from './DesktopIcons';
+import { DownloadIcon, NotesIcon, AegisDockIcon, PowerPointIcon, WordIcon, ExcelIcon, OutlookIcon, TeamsIcon, EdgeIcon } from './DesktopIcons';
 
 
 
@@ -36,17 +36,7 @@ const BottomDock = ({ aegisOpen, aegisMinimized, onAegisClick, reportsOpen, repo
                 : 'none',
     });
 
-    const tip = (label, key) =>
-        hovered === key ? (
-            <div style={{
-                position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'rgba(0,0,0,0.8)', color: '#fff',
-                padding: '3px 10px', borderRadius: '6px',
-                fontSize: '11px', fontWeight: 500, whiteSpace: 'nowrap',
-                pointerEvents: 'none', zIndex: 10,
-            }}>{label}</div>
-        ) : null;
+    const tip = () => null;
 
     return (
         <div className="bottom-dock">
@@ -55,11 +45,41 @@ const BottomDock = ({ aegisOpen, aegisMinimized, onAegisClick, reportsOpen, repo
             </div>
 
             <div className="bottom-dock-center">
+                {/* Decorative (non-functional) office apps */}
+                {[
+                    { key: 'edge', label: 'Microsoft Edge', Icon: EdgeIcon },
+                    { key: 'ppt', label: 'PowerPoint', Icon: PowerPointIcon },
+                    { key: 'word', label: 'Word', Icon: WordIcon },
+                    { key: 'excel', label: 'Excel', Icon: ExcelIcon },
+                    { key: 'outlook', label: 'Outlook', Icon: OutlookIcon },
+                    { key: 'teams', label: 'Teams', Icon: TeamsIcon },
+                ].map(({ key, label, Icon }) => (
+                    <button
+                        key={key}
+                        style={itemStyle(key)}
+                        onMouseEnter={() => setHovered(key)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setBouncing(key);
+                            setTimeout(() => setBouncing(null), 300);
+                        }}
+                        aria-label={label}
+                        tabIndex={-1}
+                    >
+                        <Icon />
+                        {tip(label, key)}
+                    </button>
+                ))}
+
                 <button
                     style={itemStyle('downloads')}
                     onMouseEnter={() => setHovered('downloads')}
                     onMouseLeave={() => setHovered(null)}
                     onClick={handleReports}
+                    id="dock_reporting_center_btn"
+                    data-testid="dock-reporting-center-btn"
+                    data-tour="dock-reporting-center"
                 >
                     <DownloadIcon />
                     {/* Running dot */}
@@ -79,6 +99,9 @@ const BottomDock = ({ aegisOpen, aegisMinimized, onAegisClick, reportsOpen, repo
                         setBouncing('notes');
                         setTimeout(() => { setBouncing(null); onNotesClick(); }, 300);
                     }}
+                    id="dock_notes_btn"
+                    data-testid="dock-notes-btn"
+                    data-tour="dock-notes"
                 >
                     <NotesIcon />
                     {/* Running dot */}
@@ -98,6 +121,9 @@ const BottomDock = ({ aegisOpen, aegisMinimized, onAegisClick, reportsOpen, repo
                     onMouseEnter={() => setHovered('aegis')}
                     onMouseLeave={() => setHovered(null)}
                     onClick={handleAegis}
+                    id="dock_aegis_btn"
+                    data-testid="dock-aegis-btn"
+                    data-tour="dock-aegis"
                 >
                     <AegisDockIcon />
                     {/* Running dot */}

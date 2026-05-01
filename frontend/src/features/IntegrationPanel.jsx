@@ -59,6 +59,8 @@ const IntegrationPanel = () => {
             <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>
                 <button
                     id="settings_refresh_sync_btn"
+                    data-testid="integrations-force-sync-btn"
+                    data-tour="integrations-force-sync"
                     className="btn btn-sm btn-outline"
                     onClick={() => emitMockAction('Integration sync started', 'Mock Jira and Salesforce sync queued.', 'success')}
                 >

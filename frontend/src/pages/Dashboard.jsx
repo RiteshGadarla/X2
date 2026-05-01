@@ -94,6 +94,8 @@ const Dashboard = () => {
                                     key={`${entry.permission}-${entry.route}`}
                                     className="btn btn-ghost workspace-action-btn"
                                     onClick={() => navigate(entry.route)}
+                                    id={`action_${entry.permission.toLowerCase()}_btn`}
+                                    data-testid={`action-${entry.permission.toLowerCase().replace(/_/g, '-')}-btn`}
                                 >
                                     <span className="workspace-action-permission">
                                         {entry.permission}
@@ -125,6 +127,8 @@ const Dashboard = () => {
                                 <button
                                     className="btn btn-sm btn-ghost"
                                     style={{ marginTop: '8px' }}
+                                    id={`report_run_${report.id.replace(/-/g, '_')}_btn`}
+                                    data-testid={`report-run-${report.id}-btn`}
                                     onClick={() => {
                                         emitMockAction(`${report.name} generated`, `Mock ${report.format} delivery started.`, 'success');
                                         fetchJson('/api/features/reports/generate', {

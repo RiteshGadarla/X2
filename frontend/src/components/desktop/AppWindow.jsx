@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const AppWindow = ({ children, title = "aegis.ai", isMaximized, onClose, onMinimize, onMaximize, zIndex = 1, onFocus }) => {
+const AppWindow = ({ children, title = "aegis.ai", testId, isMaximized, onClose, onMinimize, onMaximize, zIndex = 1, onFocus }) => {
     const windowRef = useRef(null);
     const [pos, setPos] = useState({ x: null, y: null });
     const dragging = useRef(false);
@@ -48,6 +48,7 @@ const AppWindow = ({ children, title = "aegis.ai", isMaximized, onClose, onMinim
             className={`app-window${isMaximized ? ' maximized' : ''}`}
             style={inlineStyle}
             onMouseDownCapture={onFocus}
+            data-testid={testId || 'app-window'}
         >
             {/* Title bar with 3 buttons */}
             <div className="win-titlebar" onMouseDown={startDrag}>
@@ -58,6 +59,8 @@ const AppWindow = ({ children, title = "aegis.ai", isMaximized, onClose, onMinim
                         onMouseDown={e => e.stopPropagation()}
                         onClick={onMinimize}
                         title="Minimize"
+                        id={testId ? `${testId.replace(/-/g, '_')}_minimize_btn` : 'window_minimize_btn'}
+                        data-testid={testId ? `${testId}-minimize-btn` : 'window-minimize-btn'}
                     >
                         <svg className="win-btn-icon" viewBox="0 0 10 10" fill="none">
                             <path d="M1 5h8" stroke="currentColor" strokeWidth="1" strokeLinecap="square" />
@@ -68,6 +71,8 @@ const AppWindow = ({ children, title = "aegis.ai", isMaximized, onClose, onMinim
                         onMouseDown={e => e.stopPropagation()}
                         onClick={onMaximize}
                         title={isMaximized ? 'Restore' : 'Maximize'}
+                        id={testId ? `${testId.replace(/-/g, '_')}_maximize_btn` : 'window_maximize_btn'}
+                        data-testid={testId ? `${testId}-maximize-btn` : 'window-maximize-btn'}
                     >
                         <svg className="win-btn-icon" viewBox="0 0 10 10" fill="none">
                             {isMaximized
@@ -81,6 +86,8 @@ const AppWindow = ({ children, title = "aegis.ai", isMaximized, onClose, onMinim
                         onMouseDown={e => e.stopPropagation()}
                         onClick={onClose}
                         title="Close"
+                        id={testId ? `${testId.replace(/-/g, '_')}_close_btn` : 'window_close_btn'}
+                        data-testid={testId ? `${testId}-close-btn` : 'window-close-btn'}
                     >
                         <svg className="win-btn-icon" viewBox="0 0 10 10" fill="none">
                             <path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" strokeWidth="1" />

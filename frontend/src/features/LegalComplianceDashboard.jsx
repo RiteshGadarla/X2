@@ -57,8 +57,8 @@ const LegalComplianceDashboard = () => {
             </div>
 
             <div style={{ marginTop: '48px', display: 'flex', gap: '12px' }}>
-                <button className="btn btn-sm btn-primary" style={{ paddingLeft: '20px', paddingRight: '20px' }} onClick={() => emitMockAction('Legal response approved', 'Mock approval recorded for customer communication.', 'success')}>Approve Legal Response</button>
-                <button className="btn btn-sm btn-ghost" style={{ paddingLeft: '20px', paddingRight: '20px' }} onClick={() => emitMockAction('Policy revision requested', 'Mock compliance update routed to policy owners.', 'warning')}>Request Policy Revision</button>
+                <button className="btn btn-sm btn-primary" id="legal_approve_response_btn" data-testid="legal-approve-response-btn" data-tour="legal-approve-response" style={{ paddingLeft: '20px', paddingRight: '20px' }} onClick={() => emitMockAction('Legal response approved', 'Mock approval recorded for customer communication.', 'success')}>Approve Legal Response</button>
+                <button className="btn btn-sm btn-ghost" id="legal_request_policy_revision_btn" data-testid="legal-request-revision-btn" style={{ paddingLeft: '20px', paddingRight: '20px' }} onClick={() => emitMockAction('Policy revision requested', 'Mock compliance update routed to policy owners.', 'warning')}>Request Policy Revision</button>
             </div>
         </div>
     );

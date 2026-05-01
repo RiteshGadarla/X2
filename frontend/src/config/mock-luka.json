@@ -1,0 +1,396 @@
+{
+  "title": "Luka - Customer Support Agent Demo",
+  "description": "Focused walkthrough of the Aegis AI Customer Support Agent workspace. Starts on the desktop, opens the Aegis app (which lands on the Customer Support Agent / Support Lead dashboard by default), introduces the hero metrics, and then walks each page of the role's sidebar in order — Home, Tickets, SLA, Review, and Knowledge Base.",
+  "meta": {
+    "dashboardVersion": "v1.0.0",
+    "author": "Luka",
+    "targetAudience": "Demo observers and first-time viewers of the Customer Support Agent workspace",
+    "selectorConvention": "All selectors use the '#dom_id' format matching the ELEMENT_IDS registry in src/config/tourSteps.js. Pattern-based IDs (tickets, reviews) document their runtime template.",
+    "pacingNote": "Pauses kept short. TTS adds ~500 ms startup latency per utterance. Long pauses make demos drag."
+  },
+  "steps": [
+    {
+      "id": "intro",
+      "description": "Opening narration — no UI action. Sets the stage for the Customer Support Agent demo.",
+      "action": "none",
+      "speak": {
+        "before": "Hi, I am walking you through Aegis AI — the customer intelligence platform built around Luka, our AI Customer Support Agent. Today's demo focuses on a single role: the Customer Support Agent, also known as the Support Lead. This is the frontline operator who works with Luka's triage output, monitors SLA adherence, clears human-in-the-loop escalations, and curates the knowledge base. You will see exactly what they see when they open the application."
+      }
+    },
+    {
+      "id": "desktop-orient",
+      "description": "Orient the viewer on the desktop shell — the first surface a user sees on opening Aegis.",
+      "action": "highlight",
+      "selector": ".desktop-shell",
+      "highlight": {
+        "durationMs": 2200
+      },
+      "speak": {
+        "before": "There is no login screen — the application starts here, on the Aegis desktop. The top-left shows the Aegis AI branding. The top-right has a dual-zone clock for GMT and IST. The bottom edge holds the dock from which we will open the application.",
+        "after": "Notice the desktop is otherwise empty — no role is active yet, no application is running."
+      },
+      "pause": {
+        "afterMs": 300
+      }
+    },
+    {
+      "id": "desktop-dock-overview",
+      "description": "Highlight the bottom dock — three working app icons (Reporting Center, Notes, and the Aegis shield) sit alongside the decorative Office tiles.",
+      "action": "highlight",
+      "selector": ".bottom-dock",
+      "highlight": {
+        "durationMs": 2000
+      },
+      "speak": {
+        "before": "The bottom dock holds the three working apps: the Reporting Center where every export lands, a Notes scratchpad for shift-time annotations, and the purple Aegis shield that launches the main application. The other tiles — PowerPoint, Word, Excel, Outlook, Teams — are decorative.",
+        "after": "We want the purple shield."
+      },
+      "pause": {
+        "afterMs": 300
+      }
+    },
+    {
+      "id": "open-aegis-app",
+      "description": "Open the Aegis AI application from the dock — a single click opens the app maximized AND activates the Customer Support Agent role.",
+      "action": "click",
+      "selector": "#dock_aegis_btn",
+      "elementId": "dock_aegis_btn",
+      "speak": {
+        "before": "Click the Aegis shield. A single click does two things at once: it opens the application window maximised, and it activates the Customer Support Agent role. There is no separate sign-in step.",
+        "during": "Opening Aegis AI and activating the Customer Support Agent role…",
+        "after": "The application is open. We have landed on the Customer Support Agent dashboard — this is the platform's default initial workspace."
+      },
+      "pause": {
+        "afterMs": 800
+      }
+    },
+    {
+      "id": "agent-workspace-orient",
+      "description": "Orient the viewer on the application layout — sidebar on the left, main dashboard in the centre, activity log on the right.",
+      "action": "highlight",
+      "selector": ".route-page",
+      "highlight": {
+        "durationMs": 2000
+      },
+      "speak": {
+        "before": "This is the Customer Support Agent workspace. On the left, the role-aware sidebar shows the five pages this role is permitted to access: Home, Tickets, SLA, Review, and Knowledge Base. In the centre is the dashboard we are looking at now. On the right edge, the activity log streams live pipeline events. We will start with the dashboard hero.",
+        "after": "Let's begin with the hero banner at the top."
+      },
+      "pause": {
+        "afterMs": 300
+      }
+    },
+    {
+      "id": "dashboard-hero",
+      "description": "Highlight the hero metrics banner — the live operational summary at the top of the Customer Support Agent dashboard.",
+      "action": "scroll",
+      "selector": "#dashboard-hero",
+      "highlight": {
+        "durationMs": 1800
+      },
+      "speak": {
+        "before": "The hero banner anchors the operator's situational awareness. It carries the active role context, today's date, and a strip of live operational metrics. For the Customer Support Agent, every figure here represents the operational health of Luka's pipeline output as it lands in front of this role.",
+        "after": "The hero has three regions worth pointing out: the metric strip, the chart pair, and the supporting context. Let's take them one at a time."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "dashboard-hero-metrics",
+      "description": "Highlight the KPI metric strip inside the hero — live role-scoped operational figures.",
+      "action": "scroll",
+      "selector": "#dashboard-hero .dashboard-hero-metrics",
+      "highlight": {
+        "durationMs": 1600
+      },
+      "speak": {
+        "before": "The KPI strip shows the four headline numbers a Customer Support Agent watches every shift: open ticket count, SLA breach rate, the depth of the human-in-the-loop review queue, and first-contact resolution rate.",
+        "after": "These numbers refresh whenever the role changes, so the dashboard always shows the right figures for the active workspace."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "dashboard-hero-charts",
+      "description": "Highlight the two-panel chart grid in the hero — a role-specific trend chart and a distribution breakdown.",
+      "action": "scroll",
+      "selector": "#dashboard-hero .dashboard-hero-grid",
+      "highlight": {
+        "durationMs": 1600
+      },
+      "speak": {
+        "before": "The hero closes with a two-panel chart grid. On the left, the seven-day ticket resolution trend gives the agent a quick read on whether output is keeping pace with intake. On the right, a distribution breakdown shows ticket status split between Resolved, In Progress, and At Risk.",
+        "after": "Together with the metric strip above, these two charts are the at-a-glance health view a Customer Support Agent uses to plan their shift."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "dashboard-actions",
+      "description": "Highlight the View Tickets action button — the workspace action grid below the hero, scoped to this role's permission set.",
+      "action": "highlight",
+      "selector": "#action_view_tickets_btn",
+      "elementId": "action_view_tickets_btn",
+      "highlight": {
+        "durationMs": 1400
+      },
+      "speak": {
+        "before": "Below the hero, the operational workspace renders only the actions this role is permitted to take. Each button maps to a named permission. For the Customer Support Agent that is View Tickets, View SLA, View HIL Status, and Draft Knowledge Base — the four day-to-day shortcuts a frontline operator needs.",
+        "after": "These shortcuts duplicate what the sidebar offers, giving the agent two paths into the same destinations."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "dashboard-reports",
+      "description": "Highlight the Daily Support Digest report run button — the role-filtered reporting panel beneath the action grid.",
+      "action": "highlight",
+      "selector": "#report_run_daily_support_digest_btn",
+      "elementId": "report_run_daily_support_digest_btn",
+      "highlight": {
+        "durationMs": 1400
+      },
+      "speak": {
+        "before": "Beneath the actions, a role-filtered reporting panel surfaces only the reports this role can run. The Daily Support Digest aggregates ticket volumes, SLA adherence, and escalation frequency into an emailed digest at 08:00 each morning.",
+        "after": "Every report fired from here lands in the Reporting Center on the desktop dock. That covers the dashboard. Let's start walking the sidebar — top to bottom, page by page."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "nav-to-tickets",
+      "description": "Click the Tickets sidebar item — the second nav entry, which loads the Live Ticket Queue.",
+      "action": "click",
+      "selector": "#nav_tickets_btn",
+      "elementId": "nav_tickets_btn",
+      "speak": {
+        "before": "Next icon down on the sidebar: Tickets. Click it.",
+        "during": "Loading Live Ticket Queue…",
+        "after": "This is the live ticket queue — every ticket Luka has classified, prioritised, and routed to a queue. Rows are sorted by SLA breach risk, with P1 tickets at fifteen-minute first-response windows surfacing first."
+      },
+      "pause": {
+        "afterMs": 400
+      }
+    },
+    {
+      "id": "ticket-queue-snapshot",
+      "description": "Highlight the Queue Snapshot card and Priority Mix donut — the two summary panels at the top of the Tickets page.",
+      "action": "scroll",
+      "selector": ".card-demo .layout-card:first-child",
+      "highlight": {
+        "durationMs": 1600
+      },
+      "speak": {
+        "before": "Two summary panels anchor this page. On the left, the Queue Snapshot breaks down the open queue into P1, P2, P3, and P4 bars with percentage share. On the right, the Priority Mix donut visualises the same split. Both update as Luka's classification pipeline processes new tickets.",
+        "after": "Below these summaries, each row is a ticket the agent can act on."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "ticket-queue-row",
+      "description": "Highlight the per-row Review button — the entry point into a single ticket's full triage data.",
+      "action": "highlight",
+      "selector": "[data-testid^='ticket-review-']:first-of-type",
+      "highlight": {
+        "durationMs": 1700
+      },
+      "speak": {
+        "before": "Each row shows the ticket ID, customer tier, priority, SLA priority, and the time remaining on the SLA clock. The Review button on the right opens that ticket's full triage record.",
+        "after": "Button IDs follow the runtime pattern tickets_view_{ticket_id}_btn, so an automation script can target any ticket directly. That covers Tickets — let's move to the next sidebar item."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "nav-to-sla",
+      "description": "Click the SLA sidebar item — the third nav entry, which loads the SLA Compliance dashboard.",
+      "action": "click",
+      "selector": "#nav_sla_btn",
+      "elementId": "nav_sla_btn",
+      "speak": {
+        "before": "Next icon: SLA. Click it.",
+        "during": "Loading SLA Compliance dashboard…",
+        "after": "The SLA Compliance dashboard shows how reliably the team is hitting the first-response and resolution windows for each priority tier."
+      },
+      "pause": {
+        "afterMs": 400
+      }
+    },
+    {
+      "id": "sla-kpi-cards",
+      "description": "Highlight the three SLA KPI cards — P1 Resolution SLA, Overdue ticket count, and At-Risk ticket count.",
+      "action": "scroll",
+      "selector": ".card-demo .layout-card-grid",
+      "highlight": {
+        "durationMs": 1600
+      },
+      "speak": {
+        "before": "Three headline cards sit at the top of the page. P1 Resolution SLA shows the percentage of P1 tickets resolved inside their two-hour window. Overdue counts tickets that have already breached their resolution SLA. At Risk counts tickets with less than a quarter of their SLA window remaining.",
+        "after": "Below the cards, a per-priority bar chart shows compliance against target. A rising Overdue count with a healthy P1 rate usually points to congestion in P2 or P3, not a P1 problem."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "sla-export-report",
+      "description": "Highlight the Export SLA Report button — generates the Weekly SLA Compliance CSV.",
+      "action": "highlight",
+      "selector": "#sla_export_report_btn",
+      "elementId": "sla_export_report_btn",
+      "highlight": {
+        "durationMs": 1400
+      },
+      "speak": {
+        "before": "Export SLA Report generates a Weekly SLA Compliance CSV — per-priority first-response and resolution adherence rates drawn from the live pipeline data. The export is dispatched to the stakeholder distribution list and pushed to the Reporting Center on the desktop.",
+        "after": "That covers SLA. Next sidebar item is Review."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "nav-to-review",
+      "description": "Click the Review sidebar item — the fourth nav entry, which loads the Human-in-the-Loop Review Queue.",
+      "action": "click",
+      "selector": "#nav_review_btn",
+      "elementId": "nav_review_btn",
+      "speak": {
+        "before": "Next icon: Review. Click it.",
+        "during": "Loading HIL Review Queue…",
+        "after": "This is the human-in-the-loop review queue. Every ticket Luka has flagged for human approval lands here — billing disputes, legal correspondence, and VIP interactions. No customer response goes out for these tickets until an operator acts."
+      },
+      "pause": {
+        "afterMs": 400
+      }
+    },
+    {
+      "id": "hil-per-ticket-buttons",
+      "description": "Highlight the per-ticket Approve / Modify / Reject trio — the three operator actions on a single escalation.",
+      "action": "highlight",
+      "selector": "[data-testid^='review-approve-']:first-of-type",
+      "highlight": {
+        "durationMs": 1700
+      },
+      "speak": {
+        "before": "Each escalation gives the agent three actions. Approve releases the response to the customer. Modify routes it back with updated context for Luka to re-formulate. Reject closes the escalation with a recorded reason.",
+        "after": "Button IDs follow the patterns review_approve_{id}_btn, review_modify_{id}_btn, and review_reject_{id}_btn."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "hil-bulk-approve",
+      "description": "Highlight the Bulk Approve button — clears the queue of standard escalations in a single action.",
+      "action": "highlight",
+      "selector": "#review_approve_all_btn",
+      "elementId": "review_approve_all_btn",
+      "highlight": {
+        "durationMs": 1400
+      },
+      "speak": {
+        "before": "For standard escalations that have already been collectively reviewed, the Bulk Approve button clears the full queue with a single click. This is the efficiency path for routine billing or technical escalations that need no individual modification.",
+        "after": "Every bulk decision is logged with the approver identity and the originating timestamp. That covers Review. One more sidebar item to go: Knowledge Base."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "nav-to-kb",
+      "description": "Click the Knowledge Base sidebar item — the final nav entry for this role.",
+      "action": "click",
+      "selector": "#nav_knowledge_base_btn",
+      "elementId": "nav_knowledge_base_btn",
+      "speak": {
+        "before": "Last icon: Knowledge Base. Click it.",
+        "during": "Loading Knowledge Base panel…",
+        "after": "When Luka resolves a ticket end-to-end, the resolution context is surfaced here as a draft article. The panel shows article usage rate, deflection success rate, and the queue of pending drafts awaiting human quality approval."
+      },
+      "pause": {
+        "afterMs": 400
+      }
+    },
+    {
+      "id": "kb-review-drafts",
+      "description": "Highlight the Review Drafts button — opens the KB article queue filtered to pending review.",
+      "action": "highlight",
+      "selector": "#kb_review_drafts_btn",
+      "elementId": "kb_review_drafts_btn",
+      "highlight": {
+        "durationMs": 1400
+      },
+      "speak": {
+        "before": "Review Drafts opens the article queue filtered to pending status. Luka generates drafts from resolved incidents, but no article reaches the live knowledge base without passing a human quality review.",
+        "after": "The agent reads the draft, edits if needed, and clears it for publication."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "kb-create-article",
+      "description": "Highlight the Create Article button — the manual authoring path, which routes through the same review pipeline.",
+      "action": "highlight",
+      "selector": "#kb_create_new_btn",
+      "elementId": "kb_create_new_btn",
+      "highlight": {
+        "durationMs": 1300
+      },
+      "speak": {
+        "before": "Create Article opens a blank editor pre-filled with an incident template. Manually authored articles enter the same review queue as Luka-generated drafts, so the quality gate is consistent regardless of origin.",
+        "after": "That completes the Customer Support Agent walkthrough — every page on the sidebar, end to end."
+      },
+      "pause": {
+        "afterMs": 200
+      }
+    },
+    {
+      "id": "nav-back-to-home",
+      "description": "Click the Home sidebar item to return to the Customer Support Agent dashboard for the closing recap.",
+      "action": "click",
+      "selector": "#nav_home_btn",
+      "elementId": "nav_home_btn",
+      "speak": {
+        "before": "Before wrapping up, let's return to the dashboard.",
+        "during": "Loading dashboard…",
+        "after": "Back on the Customer Support Agent home view."
+      },
+      "pause": {
+        "afterMs": 400
+      }
+    },
+    {
+      "id": "dashboard-hero-recap",
+      "description": "Re-highlight the dashboard hero one more time as the closing visual anchor for the outro.",
+      "action": "scroll",
+      "selector": "#dashboard-hero",
+      "highlight": {
+        "durationMs": 2200
+      },
+      "speak": {
+        "before": "And we are back where we started — the hero metrics, the operational health view a Customer Support Agent opens every shift to."
+      },
+      "pause": {
+        "afterMs": 300
+      }
+    },
+    {
+      "id": "outro",
+      "description": "Closing narration — no UI action. Recap of the Customer Support Agent demo, delivered while parked on the dashboard hero.",
+      "action": "none",
+      "speak": {
+        "before": "That is the Customer Support Agent workspace in full. We started on the desktop, opened the Aegis app with one click, and landed on the agent's dashboard with its hero metrics, action shortcuts, and reporting panel. From there we walked the sidebar in order — Home, Tickets, SLA, Review, and Knowledge Base — touching the queue, the SLA picture, the human-in-the-loop gate, and the knowledge base. This is what a Customer Support Agent's shift looks like inside Aegis. Anything you would like to dig into?"
+      }
+    }
+  ]
+}

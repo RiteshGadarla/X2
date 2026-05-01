@@ -80,6 +80,7 @@ const NotesWindow = ({ onClose, isMaximized, onMinimize, onMaximize, zIndex, onF
     return (
         <AppWindow
             title="Notes"
+            testId="notes-window"
             isMaximized={isMaximized}
             onClose={onClose}
             onMinimize={onMinimize}
@@ -94,11 +95,15 @@ const NotesWindow = ({ onClose, isMaximized, onMinimize, onMaximize, zIndex, onF
                         onChange={(e) => setNewNote(e.target.value)}
                         placeholder="Write a new note..."
                         style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #fcd34d', minHeight: '80px', fontFamily: 'inherit', resize: 'vertical' }}
+                        id="notes_new_textarea"
+                        data-testid="notes-new-textarea"
                     />
                     <button
                         onClick={saveNote}
                         disabled={loading || !newNote.trim()}
                         style={{ padding: '0 24px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: (loading || !newNote.trim()) ? 'not-allowed' : 'pointer', fontWeight: '600' }}
+                        id="notes_save_new_btn"
+                        data-testid="notes-save-btn"
                     >
                         Save
                     </button>
@@ -113,10 +118,12 @@ const NotesWindow = ({ onClose, isMaximized, onMinimize, onMaximize, zIndex, onF
                                         value={editContent}
                                         onChange={(e) => setEditContent(e.target.value)}
                                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #fcd34d', minHeight: '80px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' }}
+                                        id={`note_edit_textarea_${note.id}`}
+                                        data-testid={`note-edit-textarea-${note.id}`}
                                     />
                                     <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                        <button onClick={cancelEdit} style={{ padding: '6px 12px', background: 'transparent', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', color: '#64748b' }}>Cancel</button>
-                                        <button onClick={() => saveEdit(note.id)} disabled={loading || !editContent.trim()} style={{ padding: '6px 12px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: (loading || !editContent.trim()) ? 'not-allowed' : 'pointer', fontWeight: '600' }}>Save</button>
+                                        <button onClick={cancelEdit} id={`note_edit_cancel_${note.id}_btn`} data-testid={`note-edit-cancel-${note.id}-btn`} style={{ padding: '6px 12px', background: 'transparent', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', color: '#64748b' }}>Cancel</button>
+                                        <button onClick={() => saveEdit(note.id)} disabled={loading || !editContent.trim()} id={`note_edit_save_${note.id}_btn`} data-testid={`note-edit-save-${note.id}-btn`} style={{ padding: '6px 12px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: (loading || !editContent.trim()) ? 'not-allowed' : 'pointer', fontWeight: '600' }}>Save</button>
                                     </div>
                                 </div>
                             ) : (
@@ -125,8 +132,8 @@ const NotesWindow = ({ onClose, isMaximized, onMinimize, onMaximize, zIndex, onF
                                     <div style={{ marginTop: '12px', fontSize: '11px', color: '#94a3b8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span>{new Date(note.created_at).toLocaleString()} {note.created_at !== note.updated_at ? '(edited)' : ''}</span>
                                         <div style={{ display: 'flex', gap: '12px' }}>
-                                            <button onClick={() => startEdit(note)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Edit</button>
-                                            <button onClick={() => deleteNote(note.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Delete</button>
+                                            <button onClick={() => startEdit(note)} id={`note_edit_${note.id}_btn`} data-testid={`note-edit-${note.id}-btn`} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Edit</button>
+                                            <button onClick={() => deleteNote(note.id)} id={`note_delete_${note.id}_btn`} data-testid={`note-delete-${note.id}-btn`} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Delete</button>
                                         </div>
                                     </div>
                                 </>
